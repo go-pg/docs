@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+<!-- Announcement bar -->
+{% block announce %}
+<style>
+  /* Preserve link color */
+  .md-announce a,
+  .md-announce a:focus,
+  .md-announce a:hover {
+    color: currentColor;
+  }
+
+  /* Don't wrap name of blog article */
+  .md-announce strong {
+    white-space: nowrap;
+  }
+
+  /* Twitter icon */
+  .md-announce .twitter {
+    margin-left: 0.2em;
+    color: #00acee;
+  }
+</style>
+<a href="https://uptrace.dev">
+  This project is sponsored by
+  <strong>Uptrace.dev</strong> - distributed Traces and Metrics
+</a>
+{% endblock %}

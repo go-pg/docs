@@ -6,46 +6,60 @@ ignored.
 
 ## Struct tags
 
-go-pg recognizes following struct field tags:
+go-pg recognizes following optional struct field tags:
 
-| Tag                                                  | Comment                                                                |
-| ---------------------------------------------------- | ---------------------------------------------------------------------- |
-| tableName struct{} \`pg:"table_name"\`               | Overrides default table name.                                          |
-| tableName struct{} \`pg:"alias:table_alias"\`        | Overrides default table alias name.                                    |
-| tableName struct{} \`pg:"select:view_name"\`         | Overrides table name for SELECT queries.                               |
-| tableName struct{} \`pg:",discard_unknown_columns"\` | Causes go-pg to discard uknown columns.                                |
-| pg:"-"                                               | Ignores the field.                                                     |
-| pg:"column_name"                                     | Overrides default column name.                                         |
-| pg:"alias:alt_name"                                  | Alternative column name.                                               |
-| pg:",pk"                                             | Marks column as a primary key. Multiple primary keys are supported.    |
-| pg:",nopk"                                           | Not a primary key. Useful for columns with names like `id` and `uuid`. |
-| pg:"type:uuid"                                       | Overrides SQL type.                                                    |
-| pg:"default:gen_random_uuid()"                       | Default value for the column.                                          |
-| pg:",notnull"                                        | Adds `NOT NULL` SQL constraint.                                        |
-| pg:",unique"                                         | Causes `CreateTable` to create an unique constraint.                   |
-| pg:",unique:group_name"                              | Unique constraint for a group of columns.                              |
-| pg:"on_delete:RESTRICT"                              | Overrides `ON DELETE` clause for foreign keys.                         |
-| pg:",array"                                          | Enables PostgreSQL array support.                                      |
-| pg:",hstore"                                         | Enables PostgreSQL hstore support.                                     |
-| pg:"composite:type_name"                             | Enables PostgreSQL composite support.                                  |
-| pg:",use_zero"                                       | Disables marshaling Go zero values as SQL `NULL`.                      |
-| pg:",json_use_number"                                | Uses `json.Decoder.UseNumber` to decode JSON.                          |
-| pg:",msgpack"                                        | Encode/decode data using MsgPack.                                      |
-| pg:"many2many:join_table_name"                       | Specifies join table for m2m relation.                                 |
-| DeletedAt time.Time \`pg:",soft_delete"\`            | Enables soft deletes support.                                          |
+| Tag                                                  | Comment                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------ |
+| tableName struct{} \`pg:"table_name"\`               | Override default table name.                                       |
+| tableName struct{} \`pg:"alias:table_alias"\`        | Override default table alias name.                                 |
+| tableName struct{} \`pg:"select:view_name"\`         | Override table name for SELECT queries.                            |
+| tableName struct{} \`pg:",discard_unknown_columns"\` | Silently discard uknown columns instead of returning an error.     |
+| pg:"-"                                               | Ignore the field.                                                  |
+| pg:"column_name"                                     | Override default column name.                                      |
+| pg:"alias:alt_name"                                  | Alternative column name.                                           |
+| pg:",pk"                                             | Mark column as a primary key. Multiple primary keys are supported. |
+| pg:",nopk"                                           | Not a primary key. Useful for columns like `id` and `uuid`.        |
+| pg:"type:uuid"                                       | Override default SQL type.                                         |
+| pg:"default:gen_random_uuid()"                       | SQL default value for the column.                                  |
+| pg:",notnull"                                        | Add `NOT NULL` SQL constraint.                                     |
+| pg:",unique"                                         | Make `CreateTable` to create an unique constraint.                 |
+| pg:",unique:group_name"                              | Unique constraint for a group of columns.                          |
+| pg:"on_delete:RESTRICT"                              | Override `ON DELETE` clause for foreign keys.                      |
+| pg:",array"                                          | Enable PostgreSQL array support.                                   |
+| pg:",hstore"                                         | Enable PostgreSQL hstore support.                                  |
+| pg:"composite:type_name"                             | Enable PostgreSQL composite support.                               |
+| pg:",use_zero"                                       | Disable marshaling Go zero values as SQL `NULL`.                   |
+| pg:",json_use_number"                                | Use `json.Decoder.UseNumber` to decode JSON.                       |
+| pg:",msgpack"                                        | Encode/decode data using MsgPack.                                  |
+| DeletedAt time.Time \`pg:",soft_delete"\`            | Enable soft deletes support.                                       |
+
+Additionally following tags can be used on ORM relations (not columns):
+
+| Tag                                                 | Comment                                                                  |
+| --------------------------------------------------- | ------------------------------------------------------------------------ |
+| User \*User \`pg:"fk:user_id"\`                     | Overrides default foreign key for base table.                            |
+| Comments []Comment \`pg:"polymorphic:trackable\_"\` | Column prefix for polymorphic has-many relation.                         |
+| Genres []Genre \`pg:"many2many:book_genres"\`       | Junction table for many-to-many relation.                                |
+| Genres []Genre \`pg:"join_fk:book_id"\`             | Overrides default foreign key for joined table in many-to-many relation. |
 
 ## Naming conventions
 
-To avoid common issues, use following rules for naming:
-
-- Don't use
-  [SQL keywords](https://www.postgresql.org/docs/12/sql-keywords-appendix.html)
-  (e.g. `order`, `user`) as a table or column name.
-- Don't use case-sensitive names (e.g. `UserOrders`), because such names are
-  folded to lower case.
+To avoid errors, use [snake_case](https://en.wikipedia.org/wiki/Snake_case)
+names.
 
 If you get spurious parser errors you should try to quote the identifier to see
 if the problem goes away.
+
+<!-- prettier-ignore -->
+!!! warning
+    Don't use
+    [SQL keywords](https://www.postgresql.org/docs/12/sql-keywords-appendix.html)
+    (e.g. `order`, `user`) as an identifier.
+
+<!-- prettier-ignore -->
+!!! warning
+    Don't use case-sensitive names, because such names are folded
+    to lower case (e.g. `UserOrders` becomes `userorder`).
 
 ## Table name
 
@@ -118,13 +132,13 @@ PostgreSQL `text`. Default column type can be overriden with
 | net.IP             | inet             |
 | net.IPNet          | cidr             |
 
-In order to use PostgreSQL array you have to add `pg:",array"`
-[tag to the struct field](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-PostgresArrayStructTag)
+To use PostgreSQL array, add `pg:",array"`
+[struct tag](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-PostgresArrayStructTag)
 or use
 [pg.Array wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-Array).
 
-In order to use PostgreSQL Hstore you have to add `pg:",hstore"`
-[tag to the struct field](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-HstoreStructTag)
+To use PostgreSQL Hstore, add `pg:",hstore"`
+[struct tag](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-HstoreStructTag)
 or use
 [pg.Hstore wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-Hstore).
 

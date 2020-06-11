@@ -44,7 +44,7 @@ After that you can start executing queries:
 
 ```go
 // Check if connection credentials are valid and PostgreSQL is up and running.
-if err := db.Ping(db.Context()); err != nil {
+if err := db.Ping(ctx); err != nil {
     panic(err)
 }
 ```

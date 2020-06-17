@@ -252,7 +252,6 @@ Select books for update
 
 ```go
 book := &Book{}
-ids := []int{1, 2, 3}
 err := db.Model(book).
     Where("id = ?", 1).
     For("UPDATE").

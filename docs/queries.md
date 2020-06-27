@@ -262,7 +262,7 @@ err := db.Model(book).
 // SELECT * FROM books WHERE id  = 1 FOR UPDATE
 ```
 
-## Join
+### Joins
 
 Select book and manually join author:
 
@@ -287,7 +287,7 @@ q.Join("LEFT JOIN authors AS a").
     JoinOn("a.active = ?", true)
 ```
 
-## CTE and subqueries
+### CTE and subqueries
 
 Select books using WITH statement:
 
@@ -332,7 +332,7 @@ err := db.Model(nil).TableExpr("(?)", authorBooks).Select(&books)
 // )
 ```
 
-## Column names
+### Column names
 
 Select book and associated author:
 
@@ -378,6 +378,8 @@ err := db.Model(book).WherePK().Column("_").Relation("Author").Select()
 
 ## Insert
 
+### Insert struct
+
 Insert new book returning primary keys:
 
 ```go
@@ -392,12 +394,48 @@ err := db.Model(book).Returning("*").Insert()
 // INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING *
 ```
 
-Insert multiple books with single query:
+Insert new book or update existing one:
 
 ```go
-err := db.Model(book1, book2).Insert()
+_, err := db.Model(book).
+    OnConflict("(id) DO UPDATE").
+    Set("title = EXCLUDED.title").
+    Insert()
+// INSERT INTO "books" ("id", "title") VALUES (100, 'my title')
+// ON CONFLICT (id) DO UPDATE SET title = 'title version #1'
+```
+
+### Insert slice
+
+To insert slice with single query:
+
+```go
+books := []*Book{book1, book2}
+_, err := db.Model(&books).Insert()
+// INSERT INTO "books" (title, text) VALUES ('title1', 'text2'), ('title2', 'text2') RETURNING "id"
+```
+
+Alternatively:
+
+```go
+_, err := db.Model(book1, book2).Insert()
 // INSERT INTO "books" (title, text) VALUES ('title1', 'text2'), ('title2', 'text2') RETURNING *
 ```
+
+### Insert map
+
+To insert `map[string]interface{}`:
+
+```go
+values := map[string]interface{}{
+    "title": "title1",
+    "text":  "text1",
+}
+_, err := db.Model(&values).TableExpr("books").Insert()
+// INSERT INTO "books" (title, text) VALUES ('title1', 'text2')
+```
+
+### Select or insert
 
 Select existing book by name or create new book:
 
@@ -411,18 +449,9 @@ _, err := db.Model(book).
 // 3. go to step 1 on error
 ```
 
-Insert new book or update existing one:
-
-```go
-_, err := db.Model(book).
-    OnConflict("(id) DO UPDATE").
-    Set("title = EXCLUDED.title").
-    Insert()
-// INSERT INTO "books" ("id", "title") VALUES (100, 'my title')
-// ON CONFLICT (id) DO UPDATE SET title = 'title version #1'
-```
-
 ## Update
+
+### Update struct
 
 Update all columns except primary keys:
 
@@ -456,6 +485,8 @@ res, err := db.Model(book).
     Update(&title)
 // UPDATE books SET title = upper(title) WHERE id = 1 RETURNING title
 ```
+
+### Update slice
 
 Update multiple books with single query:
 
@@ -492,13 +523,15 @@ res, err := db.Model(book).Where("title = ?title").Delete()
 Delete multiple books:
 
 ```go
-books := []Book{} // slice of books with ids
+books := []*Book{book1, book2} // slice of books with ids
 
 res, err := db.Model(&books).WherePK().Delete()
-// DELETE FROM "books" WHERE id IN (1, 2, 3)
+// DELETE FROM "books" WHERE id IN (1, 2)
 ```
 
-## Has one
+## ORM
+
+### Has one
 
 Following examples selects users joining their profiles:
 
@@ -558,7 +591,7 @@ fmt.Println(users[1].Id, users[1].Name, users[1].Profile)
 // 2 user 2 &{2 ru}
 ```
 
-## Belongs to
+### Belongs to
 
 Following examples selects users joining their profiles:
 
@@ -619,7 +652,7 @@ fmt.Println(users[1].Id, users[1].Name, users[1].Profile)
 // 2 user 2 &{2 ru 2}
 ```
 
-## Has many
+### Has many
 
 Following example selects first user and all his active profiles:
 
@@ -675,14 +708,14 @@ fmt.Println(user.Id, user.Name, user.Profiles[0], user.Profiles[1])
 // Output: 1 user 1 &{1 en true 1} &{2 ru true 1}
 ```
 
-## Has many to many
+### Has many to many
 
 Following example selects one item and all subitems using intermediary `item_to_items` table.
 
 ```go
 type Item struct {
   Id    int
-  Items []Item `pg:"many2many:item_to_items,joinFK:sub_id"`
+  Items []Item `pg:"many2many:item_to_items,join_fk:sub_id"`
 }
 
 type ItemToItem struct {

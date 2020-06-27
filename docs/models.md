@@ -60,7 +60,7 @@ away.
 
 <!-- prettier-ignore -->
 !!! warning
-    Don't use case-sensitive names, because such names are folded
+    Don't use case-sensitive names because such names are folded
     to lower case (e.g. `UserOrders` becomes `userorder`).
 
 ## Table name

@@ -1,3 +1,7 @@
+---
+template: main.html
+---
+
 # FAQ
 
 ## How to check connection health?
@@ -21,9 +25,9 @@ if err != nil {
 
 ## How to insert zero/false value?
 
-All Go zero values (zero, empty string, `false`, and `nil`) are marshaled as SQL
-`DEFAULT` which typically is stored as `NULL`. If you want to insert zero values
-as is please use `pg:",use_zero"` tag on the field.
+All Go zero values (zero, empty string, `false`, and `nil`) are marshaled as SQL `DEFAULT` which
+typically is stored as `NULL`. If you want to insert zero values as is please use `pg:",use_zero"`
+tag on the field.
 
 ```go
 type Item struct {
@@ -74,8 +78,8 @@ func (DebugHook) AfterQuery(context.Context, *pg.QueryEvent) error {
 db.AddQueryHook(DebugHook{})
 ```
 
-Or you can configure PostgreSQL to log every query by adding following lines to
-your postgresql.conf (usually /etc/postgresql/9.5/main/postgresql.conf):
+Or you can configure PostgreSQL to log every query by adding following lines to your postgresql.conf
+(usually /etc/postgresql/9.5/main/postgresql.conf):
 
 ```
 log_statement = 'all'
@@ -143,8 +147,8 @@ func NewDB() *pg.DB {
 
 ## How to get last inserted id?
 
-`LastInsertId` is a concept from MySQL world - PostgreSQL does not support it.
-Instead you should use `RETURNING` as described in details at
+`LastInsertId` is a concept from MySQL world - PostgreSQL does not support it. Instead you should
+use `RETURNING` as described in details at
 [StackOverflow](https://stackoverflow.com/questions/2944297/postgresql-function-for-last-inserted-id):
 
 ```go
@@ -157,13 +161,13 @@ or using ORM:
 _, err := db.Model(&record).Returning("id").Update()
 ```
 
-go-pg automatically scans the returned data into the model just like with
-`SELECT id` query. `DB.Insert` should automatically add `Returning` for you.
+go-pg automatically scans the returned data into the model just like with `SELECT id` query.
+`DB.Insert` should automatically add `Returning` for you.
 
 ## How to test / mock database?
 
-I recommend to use real PostgreSQL database in your tests. To reset state for
-your tests, drop and create required tables. It may take some time, but:
+I recommend to use real PostgreSQL database in your tests. To reset state for your tests, drop and
+create required tables. It may take some time, but:
 
 - code is tested against real database;
 - you don't have to write mocks.
@@ -178,6 +182,5 @@ wal_level = minimal
 shared_buffers = 512MB
 ```
 
-Alternatively you can start a transaction before each test and rollback it after
-each test. This is faster, but does not allow to test code that uses
-transactions.
+Alternatively you can start a transaction before each test and rollback it after each test. This is
+faster, but does not allow to test code that uses transactions.

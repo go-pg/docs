@@ -4,9 +4,8 @@ template: main.html
 
 # Getting started
 
-go-pg requires latest Go version with
-[Modules](https://github.com/golang/go/wiki/Modules) support and uses import
-versioning. So make sure to initialize a Go module:
+go-pg requires latest Go version with [Modules](https://github.com/golang/go/wiki/Modules) support
+and uses import versioning. So make sure to initialize a Go module:
 
 ```shell
 go mod init github.com/my/repo
@@ -18,7 +17,7 @@ and then install go-pg:
 go get github.com/go-pg/pg/v10
 ```
 
-To connect to a database use:
+To connect to a database:
 
 ```go
 db := pg.Connect(&pg.Options{
@@ -49,8 +48,8 @@ if err := db.Ping(); err != nil {
 }
 ```
 
-Following example is more complex and demonstrates how to connect, create
-schema, insert, and select data:
+Following example is more complex and demonstrates how to connect, create schema, insert, and select
+data:
 
 ```go
 package main

@@ -1,11 +1,14 @@
+---
+template: main.html
+---
+
 # Queries
 
 ## Placeholders
 
-go-pg recognizes `?` in queries as placeholders and replaces them with
-parameters when queries are executed. `?` can be escaped with backslash.
-Parameters are escaped before replacing according to PostgreSQL rules.
-Specifically:
+go-pg recognizes `?` in queries as placeholders and replaces them with parameters when queries are
+executed. `?` can be escaped with backslash. Parameters are escaped before replacing according to
+PostgreSQL rules. Specifically:
 
 - all parameters are properly quoted against SQL injections;
 - null byte is removed;
@@ -675,8 +678,7 @@ fmt.Println(user.Id, user.Name, user.Profiles[0], user.Profiles[1])
 
 ## Has many to many
 
-Following example selects one item and all subitems using intermediary
-`item_to_items` table.
+Following example selects one item and all subitems using intermediary `item_to_items` table.
 
 ```go
 type Item struct {

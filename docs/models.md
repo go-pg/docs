@@ -1,12 +1,15 @@
+---
+template: main.html
+---
+
 # Models
 
-Models are defined using Go structs which are mapped to PostgreSQL tables.
-Exported struct fields are mapped to table columns, unexported fields are
-ignored.
+Models are defined using Go structs which are mapped to PostgreSQL tables. Exported struct fields
+are mapped to table columns, unexported fields are ignored.
 
 ## Struct tags
 
-go-pg recognizes following optional struct field tags:
+To override defaults, use following optional struct field tags:
 
 | Tag                                                  | Comment                                                            |
 | ---------------------------------------------------- | ------------------------------------------------------------------ |
@@ -44,11 +47,10 @@ Additionally following tags can be used on ORM relations (not columns):
 
 ## Naming conventions
 
-To avoid errors, use [snake_case](https://en.wikipedia.org/wiki/Snake_case)
-names.
+To avoid errors, use [snake_case](https://en.wikipedia.org/wiki/Snake_case) names.
 
-If you get spurious parser errors you should try to quote the identifier to see
-if the problem goes away.
+If you get spurious parser errors you should try to quote the identifier to see if the problem goes
+away.
 
 <!-- prettier-ignore -->
 !!! warning
@@ -63,10 +65,9 @@ if the problem goes away.
 
 ## Table name
 
-Table name and alias are automatically derived from the struct name by
-underscoring it. Table name is also pluralized, e.g. struct `Genre` gets table
-name `genres` and alias `genre`. Default table name and alias can be overrided
-using `tableName` field:
+Table name and alias are automatically derived from the struct name by underscoring it. Table name
+is also pluralized, e.g. struct `Genre` gets table name `genres` and alias `genre`. Default table
+name and alias can be overrided using `tableName` field:
 
 ```go
 type Genre struct {
@@ -102,9 +103,8 @@ func init() {
 
 ## Column names
 
-Column name is derived from the struct field name by underscoring it, e.g.
-struct field `ParentId` gets column name `parent_id`. Default column name can be
-overridden using `pg` tag:
+Column name is derived from the struct field name by underscoring it, e.g. struct field `ParentId`
+gets column name `parent_id`. Default column name can be overridden using `pg` tag:
 
 ```go
 type Genre struct {
@@ -112,9 +112,8 @@ type Genre struct {
 }
 ```
 
-Column type is derived from Go struct field type, e.g. Go `string` is mapped to
-PostgreSQL `text`. Default column type can be overriden with
-`pg:"type:varchar(255)"` tag.
+Column type is derived from Go struct field type, e.g. Go `string` is mapped to PostgreSQL `text`.
+Default column type can be overriden with `pg:"type:varchar(255)"` tag.
 
 | Go type            | PostgreSQL type  |
 | ------------------ | ---------------- |
@@ -134,31 +133,26 @@ PostgreSQL `text`. Default column type can be overriden with
 
 To use PostgreSQL array, add `pg:",array"`
 [struct tag](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-PostgresArrayStructTag)
-or use
-[pg.Array wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-Array).
+or use [pg.Array wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-Array).
 
 To use PostgreSQL Hstore, add `pg:",hstore"`
-[struct tag](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-HstoreStructTag)
-or use
-[pg.Hstore wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-Hstore).
+[struct tag](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-HstoreStructTag) or
+use [pg.Hstore wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-Hstore).
 
-To discard unknown columns, add tag `pg:",discard_unknown_columns"` on
-`tableName` struct field.
+To discard unknown columns, add tag `pg:",discard_unknown_columns"` on `tableName` struct field.
 
 ## SQL NULL and Go zero values
 
-By default all columns except primary keys are nullable and go-pg marshals Go
-zero values (empty string, 0, zero time, empty map or slice) as SQL `NULL`. This
-behavior can be changed using `pg:",use_zero"`tag.
+By default all columns except primary keys are nullable and go-pg marshals Go zero values (empty
+string, 0, zero time, empty map or slice) as SQL `NULL`. This behavior can be changed using
+`pg:",use_zero"`tag.
 
-Default value for a column can be specified on SQL level using
-`pg:"default:now()"` tag.
+Default value for a column can be specified on SQL level using `pg:"default:now()"` tag.
 
 ## Example
 
-Please _note_ that most struct tags in the following example have the same
-values as the defaults and are included only for demonstration purposes. Start
-defining your models without using any tags.
+Please _note_ that most struct tags in the following example have the same values as the defaults
+and are included only for demonstration purposes. Start defining your models without using any tags.
 
 ```go
 type Genre struct {

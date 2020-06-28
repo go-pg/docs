@@ -97,8 +97,11 @@ Select book by primary key:
 ```go
 book := &Book{Id: 1}
 err := db.Select(book)
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books" WHERE id = 1
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books" WHERE id = 1
 ```
 
 Same more explicitly:
@@ -106,16 +109,21 @@ Same more explicitly:
 ```go
 book := new(Book)
 err := db.Model(book).Where("id = ?", 1).Select()
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books" WHERE id = 1
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books" WHERE id = 1
 ```
 
 Select only book title and text:
 
 ```go
 err := db.Model(book).Column("title", "text").Where("id = ?", 1).Select()
-// SELECT "title", "text"
-// FROM "books" WHERE id = 1
+```
+
+```sql
+SELECT "title", "text" FROM "books" WHERE id = 1
 ```
 
 Select only book title and text into variables:
@@ -126,8 +134,11 @@ err := db.Model((*Book)(nil)).
     Column("title", "text").
     Where("id = ?", 1).
     Select(&title, &text)
-// SELECT "title", "text"
-// FROM "books" WHERE id = 1
+```
+
+```sql
+SELECT "title", "text"
+FROM "books" WHERE id = 1
 ```
 
 Select book using `WHERE ... AND ...`:
@@ -138,10 +149,13 @@ err := db.Model(book).
     Where("title LIKE ?", "my%").
     Limit(1).
     Select()
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books"
-// WHERE (id > 100) AND (title LIKE 'my%')
-// LIMIT 1
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books"
+WHERE (id > 100) AND (title LIKE 'my%')
+LIMIT 1
 ```
 
 Select book using `WHERE ... OR ...`:
@@ -152,10 +166,13 @@ err := db.Model(book).
     WhereOr("title LIKE ?", "my%").
     Limit(1).
     Select()
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books"
-// WHERE (id > 100) OR (title LIKE 'my%')
-// LIMIT 1
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books"
+WHERE (id > 100) OR (title LIKE 'my%')
+LIMIT 1
 ```
 
 Select book user `WHERE ... AND (... OR ...)`:
@@ -170,10 +187,13 @@ err := db.Model(book).
     }).
     Limit(1).
     Select()
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books"
-// WHERE (title LIKE 'my%') AND (id = 1 OR id = 2)
-// LIMIT 1
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books"
+WHERE (title LIKE 'my%') AND (id = 1 OR id = 2)
+LIMIT 1
 ```
 
 Select first 20 books:
@@ -181,37 +201,49 @@ Select first 20 books:
 ```go
 var books []Book
 err := db.Model(&books).Order("id ASC").Limit(20).Select()
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books"
-// ORDER BY id ASC LIMIT 20
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books"
+ORDER BY id ASC LIMIT 20
 ```
 
 Count books:
 
 ```go
 count, err := db.Model((*Book)(nil)).Count()
-// SELECT count(*) FROM "books"
+```
+
+```sql
+SELECT count(*) FROM "books"
 ```
 
 Select 20 books and count all books:
 
 ```go
 count, err := db.Model(&books).Limit(20).SelectAndCount()
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books" LIMIT 20
-//
-// SELECT count(*) FROM "books"
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books" LIMIT 20;
+
+SELECT count(*) FROM "books";
 ```
 
 Select 20 books and count estimated number of books:
 
 ```go
 count, err := db.Model(&books).Limit(20).SelectAndCountEstimate(100000)
-// SELECT "book"."id", "book"."title", "book"."text"
-// FROM "books" LIMIT 20
-//
-// EXPLAIN SELECT '_go_pg_placeholder' FROM "books"
-// SELECT count(*) FROM "books"
+```
+
+```sql
+SELECT "book"."id", "book"."title", "book"."text"
+FROM "books" LIMIT 20;
+
+EXPLAIN SELECT '_go_pg_placeholder' FROM "books"
+SELECT count(*) FROM "books";
 ```
 
 Select author id and number of books:
@@ -227,10 +259,13 @@ err := db.Model((*Book)(nil)).
     Group("author_id").
     Order("book_count DESC").
     Select(&res)
-// SELECT "author_id", count(*) AS book_count
-// FROM "books" AS "book"
-// GROUP BY author_id
-// ORDER BY book_count DESC
+```
+
+```sql
+SELECT "author_id", count(*) AS book_count
+FROM "books" AS "book"
+GROUP BY author_id
+ORDER BY book_count DESC
 ```
 
 Select book ids as PostgreSQL array:
@@ -238,7 +273,10 @@ Select book ids as PostgreSQL array:
 ```go
 var ids []int
 err := db.Model((*Book)(nil)).ColumnExpr("array_agg(id)").Select(pg.Array(&ids))
-// SELECT array_agg(id) FROM "books"
+```
+
+```sql
+SELECT array_agg(id) FROM "books"
 ```
 
 Select by multiple ids:
@@ -248,7 +286,10 @@ ids := []int{1, 2, 3}
 err := db.Model((*Book)(nil)).
     Where("id in (?)", pg.In(ids)).
     Select()
-// SELECT * FROM books WHERE id IN (1, 2, 3)
+```
+
+```sql
+SELECT * FROM books WHERE id IN (1, 2, 3)
 ```
 
 Select books for update
@@ -259,10 +300,13 @@ err := db.Model(book).
     Where("id = ?", 1).
     For("UPDATE").
     Select()
-// SELECT * FROM books WHERE id  = 1 FOR UPDATE
 ```
 
-### Joins
+```sql
+SELECT * FROM books WHERE id  = 1 FOR UPDATE
+```
+
+## Joins
 
 Select book and manually join author:
 
@@ -273,10 +317,13 @@ err := db.Model(book).
     ColumnExpr("a.id AS author__id, a.name AS author__name").
     Join("JOIN authors AS a ON a.id = book.author_id").
     First()
-// SELECT book.*, a.id AS author__id, a.name AS author__name
-// FROM books
-// JOIN authors AS a ON a.id = book.author_id
-// ORDER BY id LIMIT 1
+```
+
+```
+SELECT book.*, a.id AS author__id, a.name AS author__name
+FROM books
+JOIN authors AS a ON a.id = book.author_id
+ORDER BY id LIMIT 1
 ```
 
 Join conditions can be split using `JoinOn`:
@@ -287,7 +334,7 @@ q.Join("LEFT JOIN authors AS a").
     JoinOn("a.active = ?", true)
 ```
 
-### CTE and subqueries
+## CTE
 
 Select books using WITH statement:
 
@@ -298,11 +345,14 @@ err := db.Model().
     With("author_books", authorBooks).
     Table("author_books").
     Select(&books)
-// WITH "author_books" AS (
-//   SELECT "book"."id", "book"."title", "book"."text"
-//   FROM "books" AS "book" WHERE (author_id = 1)
-// )
-// SELECT * FROM "author_books"
+```
+
+```sql
+WITH "author_books" AS (
+  SELECT "book"."id", "book"."title", "book"."text"
+  FROM "books" AS "book" WHERE (author_id = 1)
+)
+SELECT * FROM "author_books"
 ```
 
 Same query using WrapWith:
@@ -313,23 +363,45 @@ err := db.Model(&books).
     WrapWith("author_books").
     Table("author_books").
     Select(&books)
-// WITH "author_books" AS (
-//   SELECT "book"."id", "book"."title", "book"."text"
-//   FROM "books" AS "book" WHERE (author_id = 1)
-// )
-// SELECT * FROM "author_books"
 ```
 
-Same query using subquery in select:
+```sql
+WITH "author_books" AS (
+  SELECT "book"."id", "book"."title", "book"."text"
+  FROM "books" AS "book" WHERE (author_id = 1)
+)
+SELECT * FROM "author_books"
+```
+
+## Subqueries
+
+Subquery in FROM:
 
 ```go
 authorBooks := db.Model((*Book)(nil)).Where("author_id = ?", 1)
 
 err := db.Model(nil).TableExpr("(?)", authorBooks).Select(&books)
-// SELECT * FROM (
-//   SELECT "book"."id", "book"."title", "book"."text"
-//   FROM "books" AS "book" WHERE (author_id = 1)
-// )
+```
+
+```sql
+SELECT * FROM (
+  SELECT "book"."id", "book"."title", "book"."text"
+  FROM "books" AS "book" WHERE (author_id = 1)
+)
+```
+
+Subquery in WHERE:
+
+```go
+authorBooks := db.Model((*Book)(nil)).ColumnExpr("id").Where("author_id = ?", 1)
+
+err := db.Model(&books).Where("id IN (?)", authorBooks).Select()
+```
+
+```sql
+SELECT * FROM "books" WHERE id IN (
+  SELECT id FROM "books" AS "book" WHERE (author_id = 1)
+)
 ```
 
 ### Column names
@@ -338,42 +410,54 @@ Select book and associated author:
 
 ```go
 err := db.Model(book).Relation("Author").Select()
-// SELECT
-//   "book"."id", "book"."title", "book"."text",
-//   "author"."id" AS "author__id", "author"."name" AS "author__name"
-// FROM "books"
-// LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
-// WHERE id = 1
+```
+
+```sql
+SELECT
+  "book"."id", "book"."title", "book"."text",
+  "author"."id" AS "author__id", "author"."name" AS "author__name"
+FROM "books"
+LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
+WHERE id = 1
 ```
 
 Select book id and associated author id:
 
 ```go
 err := db.Model(book).Column("book.id").Relation("Author.id").Select()
-// SELECT "book"."id", "author"."id" AS "author__id"
-// FROM "books"
-// LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
-// WHERE id = 1
+```
+
+```sql
+SELECT "book"."id", "author"."id" AS "author__id"
+FROM "books"
+LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
+WHERE id = 1
 ```
 
 Select book and join author without selecting it:
 
 ```go
 err := db.Model(book).Relation("Author._").Select()
-// SELECT "book"."id"
-// FROM "books"
-// LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
-// WHERE id = 1
+```
+
+```sql
+SELECT "book"."id"
+FROM "books"
+LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
+WHERE id = 1
 ```
 
 Join and select book author without selecting book:
 
 ```go
 err := db.Model(book).WherePK().Column("_").Relation("Author").Select()
-// SELECT "author"."id" AS "author__id", "author"."name" AS "author__name"
-// FROM "books"
-// LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
-// WHERE id = 1
+```
+
+```
+SELECT "author"."id" AS "author__id", "author"."name" AS "author__name"
+FROM "books"
+LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
+WHERE id = 1
 ```
 
 ## Insert
@@ -384,13 +468,19 @@ Insert new book returning primary keys:
 
 ```go
 err := db.Insert(book)
-// INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING "id"
+```
+
+```sql
+INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING "id"
 ```
 
 Insert new book returning all columns:
 
 ```go
 err := db.Model(book).Returning("*").Insert()
+```
+
+```sql
 // INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING *
 ```
 
@@ -401,8 +491,11 @@ _, err := db.Model(book).
     OnConflict("(id) DO UPDATE").
     Set("title = EXCLUDED.title").
     Insert()
-// INSERT INTO "books" ("id", "title") VALUES (100, 'my title')
-// ON CONFLICT (id) DO UPDATE SET title = 'title version #1'
+```
+
+```sql
+INSERT INTO "books" ("id", "title") VALUES (100, 'my title')
+ON CONFLICT (id) DO UPDATE SET title = 'title version #1'
 ```
 
 ### Insert slice
@@ -412,13 +505,19 @@ To insert slice with single query:
 ```go
 books := []*Book{book1, book2}
 _, err := db.Model(&books).Insert()
-// INSERT INTO "books" (title, text) VALUES ('title1', 'text2'), ('title2', 'text2') RETURNING "id"
+```
+
+```sql
+INSERT INTO "books" (title, text) VALUES ('title1', 'text2'), ('title2', 'text2') RETURNING "id"
 ```
 
 Alternatively:
 
 ```go
 _, err := db.Model(book1, book2).Insert()
+```
+
+```sql
 // INSERT INTO "books" (title, text) VALUES ('title1', 'text2'), ('title2', 'text2') RETURNING *
 ```
 
@@ -432,6 +531,9 @@ values := map[string]interface{}{
     "text":  "text1",
 }
 _, err := db.Model(&values).TableExpr("books").Insert()
+```
+
+```sql
 // INSERT INTO "books" (title, text) VALUES ('title1', 'text2')
 ```
 
@@ -444,9 +546,12 @@ _, err := db.Model(book).
     Where("title = ?title").
     OnConflict("DO NOTHING"). // optional
     SelectOrInsert()
-// 1. SELECT * FROM "books" WHERE title = 'my title'
-// 2. INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING "id"
-// 3. go to step 1 on error
+```
+
+```sql
+SELECT * FROM "books" WHERE title = 'my title';
+
+INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING "id";
 ```
 
 ## Update
@@ -457,21 +562,30 @@ Update all columns except primary keys:
 
 ```go
 err := db.Update(book)
-// UPDATE books SET title = 'my title', text = 'my text' WHERE id = 1
+```
+
+```sql
+UPDATE books SET title = 'my title', text = 'my text' WHERE id = 1
 ```
 
 Update only column "title":
 
 ```go
 res, err := db.Model(book).Set("title = ?title").Where("id = ?id").Update()
-// UPDATE books SET title = 'my title' WHERE id = 1
+```
+
+```sql
+UPDATE books SET title = 'my title' WHERE id = 1
 ```
 
 Update only column "title":
 
 ```go
 res, err := db.Model(book).Column("title").WherePK().Update()
-// UPDATE books SET title = 'my title' WHERE id = 1
+```
+
+```sql
+UPDATE books SET title = 'my title' WHERE id = 1
 ```
 
 Upper column "title" and scan it:
@@ -483,7 +597,10 @@ res, err := db.Model(book).
     Where("id = ?", 1).
     Returning("title").
     Update(&title)
-// UPDATE books SET title = upper(title) WHERE id = 1 RETURNING title
+```
+
+```sql
+UPDATE books SET title = upper(title) WHERE id = 1 RETURNING title
 ```
 
 ### Update slice
@@ -492,9 +609,12 @@ Update multiple books with single query:
 
 ```go
 err := db.Model(book1, book2).Update()
-// UPDATE books AS book SET title = _data.title, text = _data.text
-// FROM (VALUES (1, 'title1', 'text1'), (2, 'title2', 'text2')) AS _data (id, title, text)
-// WHERE book.id = _data.id
+```
+
+```sql
+UPDATE books AS book SET title = _data.title, text = _data.text
+FROM (VALUES (1, 'title1', 'text1'), (2, 'title2', 'text2')) AS _data (id, title, text)
+WHERE book.id = _data.id
 ```
 
 ## Delete
@@ -503,6 +623,9 @@ Delete book by primary key:
 
 ```go
 err := db.Delete(book)
+```
+
+```sql
 // DELETE FROM "books" WHERE id = 1
 ```
 
@@ -510,14 +633,20 @@ The same but more explicitly:
 
 ```go
 res, err := db.Model(book).WherePK().Delete()
-// DELETE FROM "books" WHERE id = 1
+```
+
+```sql
+DELETE FROM "books" WHERE id = 1
 ```
 
 Delete book by title:
 
 ```go
 res, err := db.Model(book).Where("title = ?title").Delete()
-// DELETE FROM "books" WHERE title = 'my title'
+```
+
+```sql
+DELETE FROM "books" WHERE title = 'my title'
 ```
 
 Delete multiple books:
@@ -526,7 +655,10 @@ Delete multiple books:
 books := []*Book{book1, book2} // slice of books with ids
 
 res, err := db.Model(&books).WherePK().Delete()
-// DELETE FROM "books" WHERE id IN (1, 2)
+```
+
+```sql
+DELETE FROM "books" WHERE id IN (1, 2)
 ```
 
 ## ORM

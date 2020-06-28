@@ -95,18 +95,6 @@ func Example_placeholders() {
 Select book by primary key:
 
 ```go
-book := &Book{Id: 1}
-err := db.Select(book)
-```
-
-```sql
-SELECT "book"."id", "book"."title", "book"."text"
-FROM "books" WHERE id = 1
-```
-
-Same more explicitly:
-
-```go
 book := new(Book)
 err := db.Model(book).Where("id = ?", 1).Select()
 ```
@@ -119,7 +107,10 @@ FROM "books" WHERE id = 1
 Select only book title and text:
 
 ```go
-err := db.Model(book).Column("title", "text").Where("id = ?", 1).Select()
+err := db.Model(book).
+    Column("title", "text").
+    Where("id = ?", 1).
+    Select()
 ```
 
 ```sql
@@ -450,7 +441,11 @@ WHERE id = 1
 Join and select book author without selecting book:
 
 ```go
-err := db.Model(book).WherePK().Column("_").Relation("Author").Select()
+err := db.Model(book).
+    Column("_").
+    Relation("Author").
+    Where("id = ?", 1).
+    Select()
 ```
 
 ```
@@ -467,7 +462,7 @@ WHERE id = 1
 Insert new book returning primary keys:
 
 ```go
-err := db.Insert(book)
+err := db.Model(book).Insert()
 ```
 
 ```sql
@@ -561,7 +556,7 @@ INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING "id";
 Update all columns except primary keys:
 
 ```go
-err := db.Update(book)
+err := db.Model(book).Update()
 ```
 
 ```sql
@@ -581,7 +576,10 @@ UPDATE books SET title = 'my title' WHERE id = 1
 Update only column "title":
 
 ```go
-res, err := db.Model(book).Column("title").WherePK().Update()
+res, err := db.Model(book).
+    Column("title").
+    Where("id = ?", 1).
+    Update()
 ```
 
 ```sql
@@ -638,17 +636,7 @@ UPDATE books SET title = 'title1', text = 'text2' WHERE id = 1
 Delete book by primary key:
 
 ```go
-err := db.Delete(book)
-```
-
-```sql
-DELETE FROM "books" WHERE id = 1
-```
-
-The same but more explicitly:
-
-```go
-res, err := db.Model(book).WherePK().Delete()
+res, err := db.Model(book).Where("id = ?", 1).Delete()
 ```
 
 ```sql
@@ -665,7 +653,19 @@ res, err := db.Model(book).Where("title = ?title").Delete()
 DELETE FROM "books" WHERE title = 'my title'
 ```
 
-Delete multiple books:
+Delete multiple books using ids:
+
+```go
+res, err := db.Model((*Book)(nil)).
+    Where("id IN (?)", pg.In([]int{1, 2})).
+    Delete()
+```
+
+```sql
+DELETE FROM "books" WHERE id IN (1, 2)
+```
+
+Delete multiple books using structs:
 
 ```go
 books := []*Book{book1, book2} // slice of books with ids
@@ -898,7 +898,7 @@ values := []interface{}{
   &ItemToItem{ItemId: 1, SubId: 3},
 }
 for _, v := range values {
-  err := db.Insert(v)
+  err := db.Model(v).Insert()
   if err != nil {
      panic(err)
   }

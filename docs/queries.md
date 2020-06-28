@@ -481,7 +481,7 @@ err := db.Model(book).Returning("*").Insert()
 ```
 
 ```sql
-// INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING *
+INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING *
 ```
 
 Insert new book or update existing one:
@@ -500,7 +500,7 @@ ON CONFLICT (id) DO UPDATE SET title = 'title version #1'
 
 ### Insert slice
 
-To insert slice with single query:
+Insert slice in a single query:
 
 ```go
 books := []*Book{book1, book2}
@@ -518,12 +518,12 @@ _, err := db.Model(book1, book2).Insert()
 ```
 
 ```sql
-// INSERT INTO "books" (title, text) VALUES ('title1', 'text2'), ('title2', 'text2') RETURNING *
+INSERT INTO "books" (title, text) VALUES ('title1', 'text2'), ('title2', 'text2') RETURNING *
 ```
 
 ### Insert map
 
-To insert `map[string]interface{}`:
+Insert `map[string]interface{}`:
 
 ```go
 values := map[string]interface{}{
@@ -534,7 +534,7 @@ _, err := db.Model(&values).TableExpr("books").Insert()
 ```
 
 ```sql
-// INSERT INTO "books" (title, text) VALUES ('title1', 'text2')
+INSERT INTO books (title, text) VALUES ('title1', 'text2')
 ```
 
 ### Select or insert
@@ -617,6 +617,22 @@ FROM (VALUES (1, 'title1', 'text1'), (2, 'title2', 'text2')) AS _data (id, title
 WHERE book.id = _data.id
 ```
 
+### Update map
+
+Update `map[string]interface{}`:
+
+```go
+values := map[string]interface{}{
+    "title": "title1",
+    "text":  "text1",
+}
+_, err := db.Model(&values).TableExpr("books").Where("id = ?", 1).Update()
+```
+
+```sql
+UPDATE books SET title = 'title1', text = 'text2' WHERE id = 1
+```
+
 ## Delete
 
 Delete book by primary key:
@@ -626,7 +642,7 @@ err := db.Delete(book)
 ```
 
 ```sql
-// DELETE FROM "books" WHERE id = 1
+DELETE FROM "books" WHERE id = 1
 ```
 
 The same but more explicitly:

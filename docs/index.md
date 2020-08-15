@@ -52,7 +52,7 @@ Following example is more complex and demonstrates how to connect, create schema
 data:
 
 ```go
-package main
+package pg_test
 
 import (
     "fmt"
@@ -61,11 +61,30 @@ import (
     "github.com/go-pg/pg/v10/orm"
 )
 
-func main() {
+type User struct {
+    Id     int64
+    Name   string
+    Emails []string
+}
+
+func (u User) String() string {
+    return fmt.Sprintf("User<%d %s %v>", u.Id, u.Name, u.Emails)
+}
+
+type Story struct {
+    Id       int64
+    Title    string
+    AuthorId int64
+    Author   *User
+}
+
+func (s Story) String() string {
+    return fmt.Sprintf("Story<%d %s %s>", s.Id, s.Title, s.Author)
+}
+
+func ExampleDB_Model() {
     db := pg.Connect(&pg.Options{
-        Addr:     ":5432",
-        User:     "postgres",
-        Password: "",
+        User: "postgres",
     })
     defer db.Close()
 
@@ -78,31 +97,31 @@ func main() {
         Name:   "admin",
         Emails: []string{"admin1@admin", "admin2@admin"},
     }
-    err = db.Insert(user1)
+    _, err = db.Model(user1).Insert()
     if err != nil {
         panic(err)
     }
 
-    err = db.Insert(&User{
+    _, err = db.Model(&User{
         Name:   "root",
         Emails: []string{"root1@root", "root2@root"},
-    })
+    }).Insert()
     if err != nil {
         panic(err)
     }
 
     story1 := &Story{
         Title:    "Cool story",
-        AuthorID: user1.ID,
+        AuthorId: user1.Id,
     }
-    err = db.Insert(story1)
+    _, err = db.Model(story1).Insert()
     if err != nil {
         panic(err)
     }
 
     // Select user by primary key.
-    user := &User{ID: user1.ID}
-    err = db.Select(user)
+    user := &User{Id: user1.Id}
+    err = db.Model(user).WherePK().Select()
     if err != nil {
         panic(err)
     }
@@ -118,7 +137,7 @@ func main() {
     story := new(Story)
     err = db.Model(story).
         Relation("Author").
-        Where("story.id = ?", story1.ID).
+        Where("story.id = ?", story1.Id).
         Select()
     if err != nil {
         panic(err)
@@ -132,27 +151,6 @@ func main() {
     // Story<1 Cool story User<1 admin [admin1@admin admin2@admin]>>
 }
 
-type User struct {
-    ID     int64
-    Name   string
-    Emails []string
-}
-
-func (u *User) String() string {
-    return fmt.Sprintf("User<%d %s %v>", u.ID, u.Name, u.Emails)
-}
-
-type Story struct {
-    ID       int64
-    Title    string
-    AuthorID int64
-    Author   *User
-}
-
-func (s *Story) String() string {
-    return fmt.Sprintf("Story<%d %s %s>", s.ID, s.Title, s.Author)
-}
-
 // createSchema creates database schema for User and Story models.
 func createSchema(db *pg.DB) error {
     models := []interface{}{
@@ -161,8 +159,8 @@ func createSchema(db *pg.DB) error {
     }
 
     for _, model := range models {
-        err := db.CreateTable(model, &orm.CreateTableOptions{
-            Temp: true, // temp table
+        err := db.Model(model).CreateTable(&orm.CreateTableOptions{
+            Temp: true,
         })
         if err != nil {
             return err

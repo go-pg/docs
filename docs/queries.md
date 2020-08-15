@@ -371,14 +371,14 @@ Subquery in FROM:
 ```go
 authorBooks := db.Model((*Book)(nil)).Where("author_id = ?", 1)
 
-err := db.Model(nil).TableExpr("(?)", authorBooks).Select(&books)
+err := db.Model(nil).TableExpr("(?) AS book", authorBooks).Select(&books)
 ```
 
 ```sql
 SELECT * FROM (
   SELECT "book"."id", "book"."title", "book"."text"
   FROM "books" AS "book" WHERE (author_id = 1)
-)
+) AS book
 ```
 
 Subquery in WHERE:
@@ -882,7 +882,7 @@ models := []interface{}{
   (*ItemToItem)(nil),
 }
 for _, model := range models {
-  err := db.CreateTable(model, &orm.CreateTableOptions{
+  err := db.Model(model).CreateTable(&orm.CreateTableOptions{
      Temp: true,
   })
   if err != nil {

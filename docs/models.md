@@ -112,7 +112,7 @@ type Genre struct {
 }
 ```
 
-Column type is derived from Go struct field type, e.g. Go `string` is mapped to PostgreSQL `text`.
+Column type is derived from struct field type, e.g. Go `string` is mapped to PostgreSQL `text`.
 Default column type can be overriden with `pg:"type:varchar(255)"` tag.
 
 | Go type            | PostgreSQL type  |
@@ -144,7 +144,7 @@ To discard unknown columns, add tag `pg:",discard_unknown_columns"` on `tableNam
 ## SQL NULL and Go zero values
 
 By default all columns except primary keys are nullable and go-pg marshals Go zero values (empty
-string, 0, zero time, empty map or slice) as SQL `NULL`. This behavior can be changed using
+string, 0, zero time, nil map, and nil slice) as SQL `NULL`. This behavior can be changed using
 `pg:",use_zero"`tag.
 
 Default value for a column can be specified on SQL level using `pg:"default:now()"` tag.

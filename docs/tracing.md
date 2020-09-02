@@ -18,10 +18,10 @@ db := pg.Connect(&pg.Options{...})
 db.AddQueryHook(&pgext.OpenTelemetryHook{})
 ```
 
-`OpenTelemetryHook` sends SELECT, UPDATE, and DELETE queries as is. But it strips data values for
+`OpenTelemetryHook` sends SELECT, UPDATE, and DELETE queries as is. But it strips data values from
 INSERT queries since they can contain sensitive information.
 
 This is how span looks at Uptrace.dev which is an OpenTelemetry backend that supports
-[distributed traces and metrics](https://uptrace.dev/1/groups?system=db%3Apostgresql).
+[distributed traces, logs, and errors](https://uptrace.dev/1/groups?system=db%3Apostgresql).
 
 ![PostgreSQL trace and spans](img/sql-span.png)

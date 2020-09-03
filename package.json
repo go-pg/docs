@@ -1,0 +1,32 @@
+{
+  "name": "pg-docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "lint:wording": "textlint ./docs/**/*.md"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/go-pg/docs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/go-pg/docs/issues"
+  },
+  "homepage": "https://github.com/go-pg/docs#readme",
+  "dependencies": {
+    "@textlint-rule/textlint-rule-no-unmatched-pair": "^1.0.7",
+    "textlint": "^11.7.6",
+    "textlint-filter-rule-comments": "^1.2.2",
+    "textlint-rule-common-misspellings": "^1.0.1",
+    "textlint-rule-en-capitalization": "^2.0.2",
+    "textlint-rule-stop-words": "^2.0.6",
+    "textlint-rule-terminology": "^2.1.4",
+    "textlint-rule-write-good": "^1.6.2"
+  }
+}

@@ -10,6 +10,7 @@ nav:
   - hooks.md
   - tracing.md
   - faq.md
+  - zfs.md
 
 plugins:
   - search

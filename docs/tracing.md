@@ -4,7 +4,7 @@ template: main.html
 
 # Tracing
 
-go-pg supports tracing out-of-the-box using [OpenTelemetry](https://opentelemetry.io/) API. To
+Go-pg supports tracing out-of-the-box using [OpenTelemetry](https://opentelemetry.io/) API. To
 enable queries instrumentation, use the following code:
 
 ```go

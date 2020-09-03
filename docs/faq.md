@@ -26,7 +26,7 @@ if err != nil {
 ## How to insert zero/false value?
 
 All Go zero values (zero, empty string, `false`, and `nil`) are marshaled as SQL `DEFAULT` which
-typically is stored as `NULL`. If you want to insert zero values as is please use `pg:",use_zero"`
+typically is stored as `NULL`. To insert zero values as is please use `pg:",use_zero"`
 tag on the field.
 
 ```go
@@ -149,19 +149,19 @@ func NewDB() *pg.DB {
 
 `LastInsertId` is a concept from MySQL world - PostgreSQL does not support it. Instead you should
 use `RETURNING` as described in details at
-[StackOverflow](https://stackoverflow.com/questions/2944297/postgresql-function-for-last-inserted-id):
+[Stack Overflow](https://stackoverflow.com/questions/2944297/postgresql-function-for-last-inserted-id):
 
 ```go
 _, err := tx.QueryOne(record, "INSERT INTO test_table (x) VALUES ('x') RETURNING id", record)
 ```
 
-or using ORM:
+Or using ORM:
 
 ```go
 _, err := db.Model(&record).Returning("id").Update()
 ```
 
-go-pg automatically scans the returned data into the model just like with `SELECT id` query.
+Go-pg automatically scans the returned data into the model just like with `SELECT id` query.
 `DB.Insert` should automatically add `Returning` for you.
 
 ## How to test / mock database?
@@ -169,8 +169,8 @@ go-pg automatically scans the returned data into the model just like with `SELEC
 I recommend to use real PostgreSQL database in your tests. To reset state for your tests, drop and
 create required tables. It may take some time, but:
 
-- code is tested against real database;
-- you don't have to write mocks.
+- Code is tested against real database;
+- You don't have to write mocks.
 
 To make tests faster consider using following PostgreSQL config:
 

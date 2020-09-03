@@ -6,12 +6,12 @@ template: main.html
 
 ## Placeholders
 
-go-pg recognizes `?` in queries as placeholders and replaces them with parameters when queries are
+Go-pg recognizes `?` in queries as placeholders and replaces them with parameters when queries are
 executed. `?` can be escaped with backslash. Parameters are escaped before replacing according to
 PostgreSQL rules. Specifically:
 
-- all parameters are properly quoted against SQL injections;
-- null byte is removed;
+- All parameters are properly quoted against SQL injections;
+- Null byte is removed;
 - JSON/JSONB gets `\u0000` escaped as `\\u0000`.
 
 ```go
@@ -237,7 +237,7 @@ EXPLAIN SELECT '_go_pg_placeholder' FROM "books"
 SELECT count(*) FROM "books";
 ```
 
-Select author id and number of books:
+Select author ID and number of books:
 
 ```go
 var res []struct {
@@ -259,7 +259,7 @@ GROUP BY author_id
 ORDER BY book_count DESC
 ```
 
-Select book ids as PostgreSQL array:
+Select book IDs as PostgreSQL array:
 
 ```go
 var ids []int
@@ -412,7 +412,7 @@ LEFT JOIN "users" AS "author" ON "author"."id" = "book"."author_id"
 WHERE id = 1
 ```
 
-Select book id and associated author id:
+Select book ID and associated author id:
 
 ```go
 err := db.Model(book).Column("book.id").Relation("Author.id").Select()

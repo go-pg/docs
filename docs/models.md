@@ -53,20 +53,20 @@ If you get spurious parser errors you should try to quote the identifier to see 
 away.
 
 <!-- prettier-ignore -->
-!!! warning
+!!! Warning
     Don't use
     [SQL keywords](https://www.postgresql.org/docs/12/sql-keywords-appendix.html)
-    (e.g. `order`, `user`) as an identifier.
+    (for example `order`, `user`) as an identifier.
 
 <!-- prettier-ignore -->
-!!! warning
+!!! Warning
     Don't use case-sensitive names because such names are folded
-    to lower case (e.g. `UserOrders` becomes `userorder`).
+    to lower case (for example `UserOrders` becomes `userorder`).
 
 ## Table name
 
 Table name and alias are automatically derived from the struct name by underscoring it. Table name
-is also pluralized, e.g. struct `Genre` gets table name `genres` and alias `genre`. Default table
+is also pluralized, for example struct `Genre` gets table name `genres` and alias `genre`. Default table
 name and alias can be overrided using `tableName` field:
 
 ```go
@@ -103,7 +103,7 @@ func init() {
 
 ## Column names
 
-Column name is derived from the struct field name by underscoring it, e.g. struct field `ParentId`
+Column name is derived from the struct field name by underscoring it, for example struct field `ParentId`
 gets column name `parent_id`. Default column name can be overridden using `pg` tag:
 
 ```go
@@ -112,7 +112,7 @@ type Genre struct {
 }
 ```
 
-Column type is derived from struct field type, e.g. Go `string` is mapped to PostgreSQL `text`.
+Column type is derived from struct field type, for example Go `string` is mapped to PostgreSQL `text`.
 Default column type can be overriden with `pg:"type:varchar(255)"` tag.
 
 | Go type            | PostgreSQL type  |

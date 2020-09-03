@@ -4,14 +4,14 @@ template: main.html
 
 # Getting started
 
-go-pg requires latest Go version with [Modules](https://github.com/golang/go/wiki/Modules) support
+Go-pg requires latest Go version with [Modules](https://github.com/golang/go/wiki/Modules) support
 and uses import versioning. So make sure to initialize a Go module:
 
 ```shell
 go mod init github.com/my/repo
 ```
 
-and then install go-pg:
+And then install go-pg:
 
 ```shell
 go get github.com/go-pg/pg/v10

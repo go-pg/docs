@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "lint:wording": "textlint ./docs/**/*.md"
+    "lint:wording": "textlint ./docs/*.md"
   },
   "repository": {
     "type": "git",

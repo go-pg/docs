@@ -8,7 +8,7 @@ The main reason to use ZFS instead of ext4/xfs is compression. With reasonable c
 achieve 3-5x compression ratio using LZ4. That means that LZ4 compresses 1 terabyte of data down to
 ~300 gigabytes. With ZSTD compression is even better.
 
-The second reason is the Adaptive Replacement Cache (ARC) cache. ARC is a page replacement algorithm
+The second reason is Adaptive Replacement Cache (ARC) cache. ARC is a page replacement algorithm
 with better performance than Linux page cache. Since it caches compressed blocks you can also fit
 more data into the same RAM.
 
@@ -22,7 +22,8 @@ The recommended ZFS configuration for PostgreSQL looks like this:
 - `redundant_metadata=most` - may improve random writes.
 
 If you are going to use ZFS snapshots, create separate dataset for PostgreSQL WAL files. This way
-snapshots of your main data will be smaller.
+snapshots of your main data will be smaller. Don't forget to backup WAL files separately so you can
+use (Point-in-Time Recovery)[https://www.postgresql.org/docs/current/continuous-archiving.html].
 
 ### ZFS recordsize
 
@@ -39,7 +40,7 @@ recommended.
 ### Alignment Shift (ashift)
 
 For Amazon Elastic Block Store and other cloud stores use the default value. But if you know the
-underlying hardware you using you should configure `ashift` properly.
+underlying hardware you should configure `ashift` properly.
 
 ### Disable PostgreSQL full page writes
 
@@ -50,7 +51,8 @@ Because ZFS always writes full blocks you can disable full page writes in Postgr
 
 Since ARC caches compressed blocks it makes sense to use it over PostgreSQL `shared_buffers` for
 caching hot data. But making `shared_buffers` too small will negatively affect write speed. Thefore
-consider lowering `shared_buffers` as long as your write speed does not suffer too much.
+consider lowering `shared_buffers` as long as your write speed does not suffer too much and leave
+the rest of the RAM for ARC.
 
 ### PostgreSQL block size and WAL size
 
@@ -64,3 +66,25 @@ re-initializing a database.
   of megabytes). This effect is not specific to ZFS and you can use larger block sizes with other
   filesystems as well.
 - Smaller `blocksize` means more TPS.
+
+### Disabling TOAST compression
+
+You may want to disable PostgreSQL
+[TOAST](https://www.postgresql.org/docs/current/storage-toast.html) compression by setting column
+storage to `EXTERNAL`. But it does not make much difference:
+
+- LZ4 is fast.
+- Both LZ4 and ZSTD has special logic which skips incompressible (already compressed) parts of data.
+
+### logbias=latency
+
+Quote from [reddit](https://www.reddit.com/r/zfs/comments/azt8sz/logbiasthroughput_without_a_slog/)
+by @mercenary_sysadmin:
+
+> Logbias=throughput with no SLOG will likely improve performance if your workload is lots of big
+> block writes, which is a workload that usually isn't suffering from performance issues much in the
+> first place.
+
+> Logbias=throughput with no SLOG and small block writes will result in the most horrific
+> fragmentation imaginable, which will penalize you both in the initial writes AND when you re read
+> that data from metal later.

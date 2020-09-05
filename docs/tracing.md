@@ -10,7 +10,7 @@ enable queries instrumentation, use the following code:
 ```go
 import (
     "github.com/go-pg/pg/v10"
-    "github.com/go-pg/pg/v10/pgext"
+    "github.com/go-pg/pgext"
 )
 
 db := pg.Connect(&pg.Options{...})

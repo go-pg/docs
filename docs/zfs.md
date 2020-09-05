@@ -12,7 +12,7 @@ The second reason is Adaptive Replacement Cache (ARC) cache. ARC is a page repla
 with better performance than Linux page cache. Since it caches compressed blocks you can also fit
 more data into the same RAM.
 
-The recommended ZFS configuration for PostgreSQL looks like this:
+I recommend to start with the following configuration and tune it when you know more:
 
 - `recordsize=128k` - same as default.
 - `compression=lz4` - enables lz4 compression.
@@ -29,13 +29,16 @@ use (Point-in-Time Recovery)[https://www.postgresql.org/docs/current/continuous-
 
 The `recordsize` is the size of the largest block of data that ZFS will read/write. ZFS compresses
 each block individually and compression is better for larger blocks. Use the default
-`recordsize=128k` and decrease it to 32-64k if you need more TPS (transactions per second). Setting
-`recordsize=8k` to match PostgreSQL block size reduces compression efficiency and is not
-recommended.
+`recordsize=128k` and decrease it to 32-64k if you need more TPS (transactions per second).
 
 - Larger `recordsize` means better compression. It also improves read/write performance if you
   operate with lots of data (tens of megabytes).
 - Smaller `recordsize` means more TPS.
+
+Setting `recordsize=8k` to match PostgreSQL block size reduces compression efficiency and is not
+recommended. While `recordsize=8k` improves the average transaction rate as reported by pgbench,
+good pgbench result is not an indicator of a good production performance. Measure performance of
+_your queries_ before lowering `recordsize`.
 
 ### Alignment Shift (ashift)
 
@@ -74,7 +77,7 @@ You may want to disable PostgreSQL
 storage to `EXTERNAL`. But it does not make much difference:
 
 - LZ4 is fast.
-- Both LZ4 and ZSTD has special logic which skips incompressible (already compressed) parts of data.
+- Both LZ4 and ZSTD have special logic to skip incompressible (already compressed) parts of data.
 
 ### logbias=latency
 

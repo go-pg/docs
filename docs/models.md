@@ -38,19 +38,20 @@ To override defaults, use following optional struct field tags:
 
 Additionally following tags can be used on ORM relations (not columns):
 
-| Tag                                                 | Comment                                                                  |
-| --------------------------------------------------- | ------------------------------------------------------------------------ |
-| User \*User \`pg:"fk:user_id"\`                     | Overrides default foreign key for base table.                            |
-| Comments []Comment \`pg:"polymorphic:trackable\_"\` | Column prefix for polymorphic has-many relation.                         |
-| Genres []Genre \`pg:"many2many:book_genres"\`       | Junction table for many-to-many relation.                                |
-| Genres []Genre \`pg:"join_fk:book_id"\`             | Overrides default foreign key for joined table in many-to-many relation. |
+| Tag                                                         | Comment                                           |
+| ----------------------------------------------------------- | ------------------------------------------------- |
+| Editor \*Author `pg:"rel:has-one"`                          | Marks Editor field as a has-one relation.         |
+| User \*User \`pg:"fk:user_id"\`                             | Overrides default foreign key for a base table.   |
+| Genres []Genre \`pg:"join_fk:book_id"\`                     | Overrides default foreign key for a joined table. |
+| Comments []Comment \`pg:"polymorphic,join_fk:trackable\_"\` | Polymorphic has-many relation.                    |
+| Genres []Genre \`pg:"many2many:book_genres"\`               | Junction table for many-to-many relation.         |
 
 ## Naming conventions
 
 To avoid errors, use [snake_case](https://en.wikipedia.org/wiki/Snake_case) names.
 
-If you get spurious parser errors you should try to quote the identifier to see if the problem goes
-away.
+If you get spurious SQL parser errors you should try to quote the identifier to see if the problem
+goes away.
 
 <!-- prettier-ignore -->
 !!! Warning
@@ -66,8 +67,8 @@ away.
 ## Table name
 
 Table name and alias are automatically derived from the struct name by underscoring it. Table name
-is also pluralized, for example struct `Genre` gets table name `genres` and alias `genre`. Default table
-name and alias can be overrided using `tableName` field:
+is also pluralized, for example struct `Genre` gets table name `genres` and alias `genre`. Default
+table name and alias can be overrided using `tableName` field:
 
 ```go
 type Genre struct {
@@ -103,8 +104,8 @@ func init() {
 
 ## Column names
 
-Column name is derived from the struct field name by underscoring it, for example struct field `ParentId`
-gets column name `parent_id`. Default column name can be overridden using `pg` tag:
+Column name is derived from the struct field name by underscoring it, for example struct field
+`ParentId` gets column name `parent_id`. Default column name can be overridden using `pg` tag:
 
 ```go
 type Genre struct {
@@ -112,8 +113,8 @@ type Genre struct {
 }
 ```
 
-Column type is derived from struct field type, for example Go `string` is mapped to PostgreSQL `text`.
-Default column type can be overriden with `pg:"type:varchar(255)"` tag.
+Column type is derived from struct field type, for example Go `string` is mapped to PostgreSQL
+`text`. Default column type can be overriden with `pg:"type:varchar(255)"` tag.
 
 | Go type            | PostgreSQL type  |
 | ------------------ | ---------------- |
@@ -160,70 +161,59 @@ type Genre struct {
     // By default go-pg generates table name and alias from struct name.
     tableName struct{} `pg:"genres,alias:genre"` // default values are the same
 
-    Id     int // Id is automatically detected as primary key
+    ID     int
     Name   string
     Rating int `pg:"-"` // - is used to ignore field
 
-    Books []Book `pg:"many2many:book_genres"` // many to many relation
+    Books []Book `pg:"many2many:book_genres"`
 
-    ParentId  int
-    Subgenres []Genre `pg:"fk:parent_id"` // fk specifies foreign key
+    ParentID  int
+    Subgenres []Genre `pg:"rel:has-many,join_fk:parent_id"`
 }
 
 type Image struct {
-    Id   int
+    ID   int
     Path string
 }
 
 type Author struct {
-    ID    int     // both "Id" and "ID" are detected as primary key
+    ID    int
     Name  string  `pg:",unique"`
-    Books []*Book // has many relation
+    Books []*Book `pg:"rel:has-many"`
 
-    AvatarId int
-    Avatar   Image
-}
-
-func (a Author) String() string {
-    return fmt.Sprintf("Author<ID=%d Name=%q>", a.ID, a.Name)
+    AvatarID int
+    Avatar   Image `pg:"rel:has-one"`
 }
 
 type BookGenre struct {
     tableName struct{} `pg:"alias:bg"` // custom table alias
 
-    BookId  int `pg:",pk"` // pk tag is used to mark field as primary key
-    Book    *Book
-    GenreId int `pg:",pk"`
-    Genre   *Genre
+    BookID  int    `pg:",pk"` // pk tag is used to mark field as primary key
+    Book    *Book  `pg:"rel:has-one"`
+    GenreID int    `pg:",pk"`
+    Genre   *Genre `pg:"rel:has-one"`
 
     Genre_Rating int // belongs to and is copied to Genre model
 }
 
 type Book struct {
-    Id        int
+    ID        int
     Title     string
     AuthorID  int
-    Author    Author // has one relation
+    Author    Author `pg:"rel:has-one"`
     EditorID  int
-    Editor    *Author   // has one relation
+    Editor    *Author   `pg:"rel:has-one"`
     CreatedAt time.Time `pg:"default:now()"`
     UpdatedAt time.Time
 
     Genres       []Genre       `pg:"many2many:book_genres"` // many to many relation
-    Translations []Translation // has many relation
-    Comments     []Comment     `pg:"polymorphic:trackable_"` // has many polymorphic relation
-}
-
-func (b *Book) BeforeInsert(db orm.DB) error {
-    if b.CreatedAt.IsZero() {
-        b.CreatedAt = time.Now()
-    }
-    return nil
+    Translations []Translation `pg:"rel:has-many"`
+    Comments     []Comment     `pg:"rel:has-many,join_fk:trackable_,polymorphic"`
 }
 
 // BookWithCommentCount is like Book model, but has additional CommentCount
 // field that is used to select data into it. The use of `pg:",inherit"` tag
-// is essential here and it is used to inherit internal model properties such as table name.
+// is essential here so it inherits internal model properties such as table name.
 type BookWithCommentCount struct {
     Book `pg:",inherit"`
 
@@ -233,16 +223,16 @@ type BookWithCommentCount struct {
 type Translation struct {
     tableName struct{} `pg:",alias:tr"` // custom table alias
 
-    Id     int
-    BookId int    `pg:"unique:book_id_lang"`
-    Book   *Book  // has one relation
+    ID     int
+    BookID int    `pg:"unique:book_id_lang"`
+    Book   *Book  `pg:"rel:has-one"`
     Lang   string `pg:"unique:book_id_lang"`
 
-    Comments []Comment `pg:",polymorphic:trackable_"` // has many polymorphic relation
+    Comments []Comment `pg:"rel:has-many,join_fk:trackable_,polymorphic"`
 }
 
 type Comment struct {
-    TrackableId   int    // Book.Id or Translation.Id
+    TrackableID   int    // Book.ID or Translation.ID
     TrackableType string // "Book" or "Translation"
     Text          string
 }

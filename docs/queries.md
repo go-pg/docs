@@ -694,7 +694,7 @@ type User struct {
     Id        int
     Name      string
     ProfileId int
-    Profile   *Profile
+    Profile   *Profile `pg:"rel:has-one"`
 }
 
 db := connect()
@@ -718,9 +718,10 @@ for _, q := range qs {
 // SELECT
 //   "user".*,
 //   "profile"."id" AS "profile__id",
-//   "profile"."lang" AS "profile__lang"
+//   "profile"."lang" AS "profile__lang",
+//   "profile"."user_id" AS "profile__user_id"
 // FROM "users" AS "user"
-// LEFT JOIN "profiles" AS "profile" ON "profile"."id" = "user"."profile_id"
+// LEFT JOIN "profiles" AS "profile" ON "profile"."user_id" = "user"."id"
 
 var users []User
 err := db.Model(&users).
@@ -754,7 +755,7 @@ type Profile struct {
 type User struct {
     Id      int
     Name    string
-    Profile *Profile
+    Profile *Profile `pg:"rel:belongs-to"`
 }
 
 db := connect()
@@ -778,10 +779,9 @@ for _, q := range qs {
 // SELECT
 //   "user".*,
 //   "profile"."id" AS "profile__id",
-//   "profile"."lang" AS "profile__lang",
-//   "profile"."user_id" AS "profile__user_id"
+//   "profile"."lang" AS "profile__lang"
 // FROM "users" AS "user"
-// LEFT JOIN "profiles" AS "profile" ON "profile"."user_id" = "user"."id"
+// LEFT JOIN "profiles" AS "profile" ON "profile"."id" = "user"."profile_id"
 
 var users []User
 err := db.Model(&users).
@@ -816,7 +816,7 @@ type Profile struct {
 type User struct {
     Id       int
     Name     string
-    Profiles []*Profile
+    Profiles []*Profile `pg:"rel:has-many"`
 }
 
 db := connect()
@@ -835,15 +835,15 @@ for _, q := range qs {
     }
 }
 
-// Select user and all his active profiles using following queries:
+// Select user and all his active profiles with following queries:
 //
 // SELECT "user".* FROM "users" AS "user" ORDER BY "user"."id" LIMIT 1
 //
 // SELECT "profile".* FROM "profiles" AS "profile"
 // WHERE (active IS TRUE) AND (("profile"."user_id") IN ((1)))
 
-user := new(User)
-err := db.Model(user).
+var user User
+err := db.Model(&user).
     Column("user.*").
     Relation("Profiles", func(q *orm.Query) (*orm.Query, error) {
         return q.Where("active IS TRUE"), nil
@@ -858,69 +858,117 @@ fmt.Println(user.Id, user.Name, user.Profiles[0], user.Profiles[1])
 
 ### Has many to many
 
-Following example selects one item and all subitems using intermediary `item_to_items` table.
+Following example selects an order and all items in the order using intermediary `order_to_items`
+table.
 
 ```go
+package pg_test
+
+import (
+    "fmt"
+
+    "github.com/go-pg/pg/v10"
+    "github.com/go-pg/pg/v10/orm"
+)
+
+func init() {
+    // Register many to many model so ORM can better recognize m2m relation.
+    // This should be done before dependant models are used.
+    orm.RegisterTable((*OrderToItem)(nil))
+}
+
+type Order struct {
+    Id    int
+    Items []Item `pg:"many2many:order_to_items"`
+}
+
 type Item struct {
-  Id    int
-  Items []Item `pg:"many2many:item_to_items,join_fk:sub_id"`
+    Id int
 }
 
-type ItemToItem struct {
-  ItemId int
-  SubId  int
+type OrderToItem struct {
+    OrderId int
+    ItemId  int
 }
 
-db := connect()
-defer db.Close()
+func ExampleDB_Model_manyToMany() {
+    db := connect()
+    defer db.Close()
 
-// Register many to many model so ORM can better recognize m2m relation.
-orm.RegisterTable((*ItemToItem)(nil))
+    if err := createManyToManyTables(db); err != nil {
+        panic(err)
+    }
 
-models := []interface{}{
-  (*Item)(nil),
-  (*ItemToItem)(nil),
-}
-for _, model := range models {
-  err := db.Model(model).CreateTable(&orm.CreateTableOptions{
-     Temp: true,
-  })
-  if err != nil {
-     panic(err)
-  }
+    values := []interface{}{
+        &Item{Id: 1},
+        &Item{Id: 2},
+        &Order{Id: 1},
+        &OrderToItem{OrderId: 1, ItemId: 1},
+        &OrderToItem{OrderId: 1, ItemId: 2},
+    }
+    for _, v := range values {
+        _, err := db.Model(v).Insert()
+        if err != nil {
+            panic(err)
+        }
+    }
+
+    // Select order and all items with following queries:
+    //
+    // SELECT "order"."id" FROM "orders" AS "order" ORDER BY "order"."id" LIMIT 1
+    //
+    // SELECT order_to_items.*, "item"."id" FROM "items" AS "item"
+    // JOIN order_to_items AS order_to_items ON (order_to_items."order_id") IN (1)
+    // WHERE ("item"."id" = order_to_items."item_id")
+
+    order := new(Order)
+    err := db.Model(order).Relation("Items").First()
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println("Order", order.Id, "Items", order.Items[0].Id, order.Items[1].Id)
+
+    // Select order and all items sorted by id with following queries:
+    //
+    // SELECT "order"."id" FROM "orders" AS "order" ORDER BY "order"."id" LIMIT 1
+    //
+    // SELECT order_to_items.*, "item"."id" FROM "items" AS "item"
+    // JOIN order_to_items AS order_to_items ON (order_to_items."order_id") IN (1)
+    // WHERE ("item"."id" = order_to_items."item_id")
+    // ORDER BY item.id DESC
+
+    order = new(Order)
+    err = db.Model(order).
+        Relation("Items", func(q *orm.Query) (*orm.Query, error) {
+            q = q.OrderExpr("item.id DESC")
+            return q, nil
+        }).
+        First()
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println("Order", order.Id, "Items", order.Items[0].Id, order.Items[1].Id)
+
+    // Output: Order 1 Items 1 2
+    // Order 1 Items 2 1
 }
 
-values := []interface{}{
-  &Item{Id: 1},
-  &Item{Id: 2},
-  &Item{Id: 3},
-  &ItemToItem{ItemId: 1, SubId: 2},
-  &ItemToItem{ItemId: 1, SubId: 3},
+func createManyToManyTables(db *pg.DB) error {
+    models := []interface{}{
+        (*Order)(nil),
+        (*Item)(nil),
+        (*OrderToItem)(nil),
+    }
+    for _, model := range models {
+        err := db.Model(model).CreateTable(&orm.CreateTableOptions{
+            Temp: true,
+        })
+        if err != nil {
+            return err
+        }
+    }
+    return nil
 }
-for _, v := range values {
-  err := db.Model(v).Insert()
-  if err != nil {
-     panic(err)
-  }
-}
-
-// Select item and all subitems with following queries:
-//
-// SELECT "item".* FROM "items" AS "item" ORDER BY "item"."id" LIMIT 1
-//
-// SELECT * FROM "items" AS "item"
-// JOIN "item_to_items" ON ("item_to_items"."item_id") IN ((1))
-// WHERE ("item"."id" = "item_to_items"."sub_id")
-
-var item Item
-err := db.Model(&item).Column("item.*").Relation("Items").First()
-if err != nil {
-  panic(err)
-}
-fmt.Println("Item", item.Id)
-fmt.Println("Subitems", item.Items[0].Id, item.Items[1].Id)
-// Output: Item 1
-// Subitems 2 3
 ```
 
 ## Executing custom queries

@@ -26,8 +26,8 @@ if err != nil {
 ## How to insert zero/false value?
 
 All Go zero values (zero, empty string, `false`, and `nil`) are marshaled as SQL `DEFAULT` which
-typically is stored as `NULL`. To insert zero values as is please use `pg:",use_zero"`
-tag on the field.
+typically is stored as `NULL`. To insert zero values as is please use `pg:",use_zero"` tag on the
+field.
 
 ```go
 type Item struct {
@@ -40,42 +40,12 @@ type Item struct {
 Starting from v10 use:
 
 ```go
-db.AddQueryHook(pgext.DebugHook{})
-```
+import "github.com/go-pg/pgext"
 
-On older versions:
-
-```go
-import "github.com/go-pg/pg/v10/pgext"
-
-// DebugHook is a query hook that logs the query and the error if there are any.
-// It can be installed with:
-//
-//   db.AddQueryHook(pgext.DebugHook{})
-type DebugHook struct{}
-
-var _ pg.QueryHook = (*DebugHook)(nil)
-
-func (DebugHook) BeforeQuery(ctx context.Context, evt *pg.QueryEvent) (context.Context, error) {
-    q, err := evt.FormattedQuery()
-    if err != nil {
-        return nil, err
-    }
-
-    if evt.Err != nil {
-        log.Printf("Error %s executing query:\n%s\n", evt.Err, q)
-    } else {
-        log.Printf("%s", q)
-    }
-
-    return ctx, nil
-}
-
-func (DebugHook) AfterQuery(context.Context, *pg.QueryEvent) error {
-    return nil
-}
-
-db.AddQueryHook(DebugHook{})
+db.AddQueryHook(pgext.DebugHook{
+    // Print all queries.
+    Verbose: true,
+})
 ```
 
 Or you can configure PostgreSQL to log every query by adding following lines to your postgresql.conf

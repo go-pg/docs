@@ -297,34 +297,6 @@ err := db.Model(book).
 SELECT * FROM books WHERE id  = 1 FOR UPDATE
 ```
 
-## Joins
-
-Select book and manually join author:
-
-```go
-book := new(Book)
-err := db.Model(book).
-    ColumnExpr("book.*").
-    ColumnExpr("a.id AS author__id, a.name AS author__name").
-    Join("JOIN authors AS a ON a.id = book.author_id").
-    First()
-```
-
-```
-SELECT book.*, a.id AS author__id, a.name AS author__name
-FROM books
-JOIN authors AS a ON a.id = book.author_id
-ORDER BY id LIMIT 1
-```
-
-Join conditions can be split using `JoinOn`:
-
-```go
-q.Join("LEFT JOIN authors AS a").
-    JoinOn("a.id = book.author_id").
-    JoinOn("a.active = ?", true)
-```
-
 ## CTE
 
 Select books using WITH statement:
@@ -676,6 +648,36 @@ res, err := db.Model(&books).WherePK().Delete()
 ```sql
 DELETE FROM "books" WHERE id IN (1, 2)
 ```
+
+## Joins
+
+Select a book and manually join the book author:
+
+```go
+book := new(Book)
+err := db.Model(book).
+    ColumnExpr("book.*").
+    ColumnExpr("a.id AS author__id, a.name AS author__name").
+    Join("JOIN authors AS a ON a.id = book.author_id").
+    First()
+```
+
+```
+SELECT book.*, a.id AS author__id, a.name AS author__name
+FROM books
+JOIN authors AS a ON a.id = book.author_id
+ORDER BY id LIMIT 1
+```
+
+Join conditions can be split using `JoinOn`:
+
+```go
+q.Join("LEFT JOIN authors AS a").
+    JoinOn("a.id = book.author_id").
+    JoinOn("a.active = ?", true)
+```
+
+You can achieve the same using ORM relations which are described below.
 
 ## ORM
 

@@ -39,11 +39,19 @@ if err != nil {
 db := pg.Connect(opt)
 ```
 
-After that you can start executing queries:
+To check if database is up and running:
 
 ```go
-// Check if connection credentials are valid and PostgreSQL is up and running.
 if err := db.Ping(ctx); err != nil {
+    panic(err)
+}
+```
+
+The same:
+
+```go
+_, err := db.Exec("SELECT 1")
+if err != nil {
     panic(err)
 }
 ```

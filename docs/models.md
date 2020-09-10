@@ -33,7 +33,8 @@ To override defaults, use following optional struct field tags:
 | pg:"composite:type_name"                             | Enable PostgreSQL composite support.                               |
 | pg:",use_zero"                                       | Disable marshaling Go zero values as SQL `NULL`.                   |
 | pg:",json_use_number"                                | Use `json.Decoder.UseNumber` to decode JSON.                       |
-| pg:",msgpack"                                        | Encode/decode data using MsgPack.                                  |
+| pg:",msgpack"                                        | Encode/decode data using MessagePack.                              |
+| pg:"partition_by:RANGE (time)"                       | Specifies table partitioning for `CreateTable`.                    |
 | DeletedAt time.Time \`pg:",soft_delete"\`            | Enable soft deletes support.                                       |
 
 Additionally following tags can be used on ORM relations (not columns):

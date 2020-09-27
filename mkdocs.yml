@@ -12,6 +12,9 @@ nav:
   - faq.md
   - zfs.md
 
+extra_css:
+  - css/index.css
+
 plugins:
   - search
   - awesome-pages

@@ -115,7 +115,7 @@ type Genre struct {
 ```
 
 Column type is derived from struct field type, for example Go `string` is mapped to PostgreSQL
-`text`. Default column type can be overriden with `pg:"type:varchar(255)"` tag.
+`text`. Default column type can be overridden with `pg:"type:varchar(255)"` tag.
 
 | Go type            | PostgreSQL type  |
 | ------------------ | ---------------- |

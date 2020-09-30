@@ -2,16 +2,14 @@
 template: main.html
 ---
 
-# Hooks
-
-## Model Hooks
+# Model hooks
 
 Models support optional hooks that are called before and after select, insert, update, and delete
 queries. When slice model is used hooks are called for each struct in a slice.
 
-Please note how we use
-[compile time check](https://medium.com/@matryer/golang-tip-compile-time-checks-to-ensure-your-type-satisfies-an-interface-c167afed3aae)
-`var _ orm.AfterScanHook = (*Book)(nil)` to ensure that type implements an interface.
+To ensure that your type implements a hook, use
+[compile time check](https://medium.com/@matryer/golang-tip-compile-time-checks-to-ensure-your-type-satisfies-an-interface-c167afed3aae),
+for example `var _ orm.AfterScanHook = (*Book)(nil)`.
 
 ```go
 type Book struct{}

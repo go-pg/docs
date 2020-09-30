@@ -2,10 +2,11 @@
 template: main.html
 ---
 
-# Tracing
+# Tracing and monitoring errors
 
-Go-pg supports tracing out-of-the-box using [OpenTelemetry](https://opentelemetry.io/) API. To
-enable queries instrumentation, use the following code:
+go-pg supports tracing out-of-the-box using
+[OpenTelemetry](https://opentelemetry.io/){target=\_blank} API. To enable queries instrumentation,
+use the following code:
 
 ```go
 import (

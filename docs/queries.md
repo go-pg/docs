@@ -2,11 +2,11 @@
 template: main.html
 ---
 
-# Queries
+# Writing queries
 
 ## Placeholders
 
-Go-pg recognizes `?` in queries as placeholders and replaces them with parameters when queries are
+go-pg recognizes `?` in queries as placeholders and replaces them with parameters when queries are
 executed. `?` can be escaped with backslash. Parameters are escaped before replacing according to
 PostgreSQL rules. Specifically:
 

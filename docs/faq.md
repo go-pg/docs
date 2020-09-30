@@ -131,7 +131,7 @@ Or using ORM:
 _, err := db.Model(&record).Returning("id").Update()
 ```
 
-Go-pg automatically scans the returned data into the model just like with `SELECT id` query.
+go-pg automatically scans the returned data into the model just like with `SELECT id` query.
 `DB.Insert` should automatically add `Returning` for you.
 
 ## How to test / mock database?

@@ -5,7 +5,7 @@ template: main.html
 # Tuning PostgreSQL on ZFS
 
 The main reason to use ZFS instead of ext4/xfs is compression. With reasonable configuration you can
-achieve 3-5x compression ratio using LZ4. That means that LZ4 compresses 1 terabyte of data down to
+achieve 3-4x compression ratio using LZ4. That means that LZ4 compresses 1 terabyte of data down to
 ~300 gigabytes. With ZSTD compression is even better.
 
 The second reason is Adaptive Replacement Cache (ARC) cache. ARC is a page replacement algorithm
@@ -23,7 +23,8 @@ I recommend to start with the following configuration and tune it when you know 
 
 If you are going to use ZFS snapshots, create separate dataset for PostgreSQL WAL files. This way
 snapshots of your main data will be smaller. Don't forget to backup WAL files separately so you can
-use (Point-in-Time Recovery)[https://www.postgresql.org/docs/current/continuous-archiving.html].
+use
+[Point-in-Time Recovery](https://www.postgresql.org/docs/current/continuous-archiving.html){target=\_blank}.
 
 ### ZFS recordsize
 
@@ -73,15 +74,16 @@ re-initializing a database.
 ### Disabling TOAST compression
 
 You may want to disable PostgreSQL
-[TOAST](https://www.postgresql.org/docs/current/storage-toast.html) compression by setting column
-storage to `EXTERNAL`. But it does not make much difference:
+[TOAST](https://www.postgresql.org/docs/current/storage-toast.html){target=\_blank} compression by
+setting column storage to `EXTERNAL`. But it does not make much difference:
 
 - LZ4 is fast.
 - Both LZ4 and ZSTD have special logic to skip incompressible (already compressed) parts of data.
 
 ### logbias=latency
 
-Quote from [reddit](https://www.reddit.com/r/zfs/comments/azt8sz/logbiasthroughput_without_a_slog/)
+Quote from
+[reddit](https://www.reddit.com/r/zfs/comments/azt8sz/logbiasthroughput_without_a_slog/){target=\_blank}
 by @mercenary_sysadmin:
 
 > Logbias=throughput with no SLOG will likely improve performance if your workload is lots of big

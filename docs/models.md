@@ -2,14 +2,15 @@
 template: main.html
 ---
 
-# Models
+# Defining models
 
-Models are defined using Go structs which are mapped to PostgreSQL tables. Exported struct fields
-are mapped to table columns, unexported fields are ignored.
+For each PostgreSQL table you need a corresponding Go struct (model). go-pg maps exported struct
+fields to table columns and ignores unexported fields.
 
 ## Struct tags
 
-To override defaults, use following optional struct field tags:
+go-pg uses idiomatic defaults to generate SQL names from Go field names. To override defaults, use
+following optional struct field tags:
 
 | Tag                                                  | Comment                                                            |
 | ---------------------------------------------------- | ------------------------------------------------------------------ |
@@ -39,19 +40,18 @@ To override defaults, use following optional struct field tags:
 
 Additionally following tags can be used on ORM relations (not columns):
 
-| Tag                                                         | Comment                                           |
-| ----------------------------------------------------------- | ------------------------------------------------- |
-| Editor \*Author `pg:"rel:has-one"`                          | Marks Editor field as a has-one relation.         |
-| User \*User \`pg:"fk:user_id"\`                             | Overrides default foreign key for a base table.   |
-| Genres []Genre \`pg:"join_fk:book_id"\`                     | Overrides default foreign key for a joined table. |
-| Comments []Comment \`pg:"polymorphic,join_fk:trackable\_"\` | Polymorphic has-many relation.                    |
-| Genres []Genre \`pg:"many2many:book_genres"\`               | Junction table for many-to-many relation.         |
+| Tag                                                            | Comment                                           |
+| -------------------------------------------------------------- | ------------------------------------------------- |
+| `` Editor *Author `pg:"rel:has-one"` ``                        | Marks Editor field as a has-one relation.         |
+| `` User *User `pg:"fk:user_id"` ``                             | Overrides default foreign key for a base table.   |
+| `` Genres []Genre `pg:"join_fk:book_id"` ``                    | Overrides default foreign key for a joined table. |
+| `` Comments []Comment `pg:"polymorphic,join_fk:trackable_"` `` | Polymorphic has-many relation.                    |
+| `` Genres []Genre `pg:"many2many:book_genres"` ``              | Junction table for many-to-many relation.         |
 
-## Naming conventions
+## SQL naming convention
 
-To avoid errors, use [snake_case](https://en.wikipedia.org/wiki/Snake_case) names.
-
-If you get spurious SQL parser errors you should try to quote the identifier to see if the problem
+To avoid errors, use [snake_case](https://en.wikipedia.org/wiki/Snake_case) names. If you get
+spurious SQL parser errors, try to quote the identifier with double quotes to check if the problem
 goes away.
 
 <!-- prettier-ignore -->
@@ -63,7 +63,7 @@ goes away.
 <!-- prettier-ignore -->
 !!! Warning
     Don't use case-sensitive names because such names are folded
-    to lower case (for example `UserOrders` becomes `userorder`).
+    to lower case (for example `UserOrders` becomes `userorders`).
 
 ## Table name
 
@@ -85,7 +85,7 @@ type Genre struct {
 }
 ```
 
-To quote problematic identifier:
+To quote a problematic identifier:
 
 ```go
 type User struct {
@@ -114,8 +114,8 @@ type Genre struct {
 }
 ```
 
-Column type is derived from struct field type, for example Go `string` is mapped to PostgreSQL
-`text`. Default column type can be overridden with `pg:"type:varchar(255)"` tag.
+go-pg derives column type from a struct field type, for example Go `string` gets PostgreSQL type
+`text`. You can override default column type with `pg:"type:varchar(255)"` tag.
 
 | Go type            | PostgreSQL type  |
 | ------------------ | ---------------- |
@@ -141,15 +141,19 @@ To use PostgreSQL Hstore, add `pg:",hstore"`
 [struct tag](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-DB-Model-HstoreStructTag) or
 use [pg.Hstore wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#example-Hstore).
 
-To discard unknown columns, add tag `pg:",discard_unknown_columns"` on `tableName` struct field.
+## Discarding unknown columns
+
+To discard an unknown column, prefix it with underscore, for example `_ignore_me`. You can also add
+tag `` tableName struct{} `pg:",discard_unknown_columns"` `` to discard all unknown columns.
 
 ## SQL NULL and Go zero values
 
 By default all columns except primary keys are nullable and go-pg marshals Go zero values (empty
-string, 0, zero time, nil map, and nil slice) as SQL `NULL`. This behavior can be changed using
+string, 0, zero time, nil map, and nil slice) as SQL `NULL`. This behavior can be disabled using
 `pg:",use_zero"`tag.
 
-Default value for a column can be specified on SQL level using `pg:"default:now()"` tag.
+For insert queries you can also specify a default value for a column using `pg:"default:now()"` tag.
+In such case go-pg uses `DEFAULT` instead of `NULL` for Go zero values.
 
 ## Example
 

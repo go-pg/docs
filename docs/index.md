@@ -4,14 +4,19 @@ template: main.html
 
 # Getting started
 
-Go-pg requires latest Go version with [Modules](https://github.com/golang/go/wiki/Modules) support
-and uses import versioning. So make sure to initialize a Go module:
+<!-- prettier-ignore -->
+!!! note
+    If you are already familiar with go-pg, please check [Gin + go-pg realworld example application](https://github.com/uptrace/go-realworld-example-app).
+
+go-pg supports 2 last Go versions and requires a Go version with
+[modules](https://github.com/golang/go/wiki/Modules) support. So make sure to initialize a Go
+module:
 
 ```shell
 go mod init github.com/my/repo
 ```
 
-And then install go-pg:
+And then install go-pg (please note _v10_ in the import; omitting it is a popular mistake):
 
 ```shell
 go get github.com/go-pg/pg/v10
@@ -42,6 +47,8 @@ db := pg.Connect(opt)
 To check if database is up and running:
 
 ```go
+ctx := context.Background()
+
 if err := db.Ping(ctx); err != nil {
     panic(err)
 }
@@ -50,14 +57,24 @@ if err := db.Ping(ctx); err != nil {
 The same:
 
 ```go
-_, err := db.Exec("SELECT 1")
+_, err := db.ExecContext(ctx, "SELECT 1")
 if err != nil {
     panic(err)
 }
 ```
 
-Following example is more complex and demonstrates how to connect, create schema, insert, and select
-data:
+To select PostgreSQL version:
+
+```go
+var version string
+_, err := db.QueryOneContext(ctx, pg.Scan(&version), "SELECT version()")
+if err != nil {
+    panic(err)
+}
+fmt.Println(version)
+```
+
+Following example demonstrates how to connect, create schema, insert, and select data:
 
 ```go
 package pg_test

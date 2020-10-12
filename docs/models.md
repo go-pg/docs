@@ -4,8 +4,8 @@ template: main.html
 
 # Defining models
 
-For each PostgreSQL table you need a corresponding Go struct (model). go-pg maps exported struct
-fields to table columns and ignores unexported fields.
+For each PostgreSQL table you need to defined a corresponding Go struct (model). go-pg maps exported
+struct fields to table columns. It ignores unexported fields.
 
 ## Struct tags
 
@@ -145,15 +145,6 @@ use [pg.Hstore wrapper](https://pkg.go.dev/github.com/go-pg/pg/v10?tab=doc#examp
 
 To discard an unknown column, prefix it with underscore, for example `_ignore_me`. You can also add
 tag `` tableName struct{} `pg:",discard_unknown_columns"` `` to discard all unknown columns.
-
-## SQL NULL and Go zero values
-
-By default all columns except primary keys are nullable and go-pg marshals Go zero values (empty
-string, 0, zero time, nil map, and nil slice) as SQL `NULL`. This behavior can be disabled using
-`pg:",use_zero"`tag.
-
-For insert queries you can also specify a default value for a column using `pg:"default:now()"` tag.
-In such case go-pg uses `DEFAULT` instead of `NULL` for Go zero values.
 
 ## Example
 

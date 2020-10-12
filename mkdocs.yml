@@ -6,7 +6,9 @@ edit_uri: https://github.com/go-pg/docs/edit/master/docs/
 nav:
   - index.md
   - models.md
+  - placeholders.md
   - queries.md
+  - sql-null-go-zero-values.md
   - hooks.md
   - tracing.md
   - faq.md

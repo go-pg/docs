@@ -68,8 +68,8 @@ tail -f /var/log/postgresql/postgresql-9.5-main.log
 import "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/proxy"
 
 db := pg.Connect(&pg.Options{
-    Dialer: func(network, addr string) (net.Conn, error) {
-        return proxy.Dial("project-name:region:instance-name")
+    Dialer: func(ctx context.Context, network, addr string) (net.Conn, error) {
+        return proxy.DialContext(ctx, "project-name:region:instance-name")
     },
 })
 ```

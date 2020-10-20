@@ -13,6 +13,7 @@ nav:
   - tracing.md
   - faq.md
   - zfs.md
+  - table-partitioning.md
 
 extra_css:
   - css/index.css

@@ -32,7 +32,7 @@ For example:
 
 To update list of key-value pairs:
 
-```
+```go
 kv := map[string]interface{}{
     "col1": "val1",
     "col2": 123,

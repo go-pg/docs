@@ -9,6 +9,7 @@ For instance, you want to create a `logs` table which contain three columns, and
 * `id` big serial
 * `log_string` varchar
 * `log_time` timestampz
+* `(id, log_time)` as primary key, because partition key must included in the primary key
 
 You can define a struct as follow:
 

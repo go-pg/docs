@@ -12,6 +12,7 @@ nav:
   - table-partitioning.md
   - hooks.md
   - tracing.md
+  - extra-modules.md
   - faq.md
   - zfs.md
 

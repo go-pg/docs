@@ -9,6 +9,7 @@ nav:
   - placeholders.md
   - queries.md
   - sql-null-go-zero-values.md
+  - transactions.md
   - table-partitioning.md
   - hooks.md
   - tracing.md

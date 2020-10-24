@@ -8,6 +8,12 @@ nav:
   - models.md
   - placeholders.md
   - queries.md
+  - 'ORM':
+      - 'Introduction': orm/intro.md
+      - orm/has-one-relation.md
+      - orm/belongs-to-relation.md
+      - orm/has-many-relation.md
+      - orm/many-to-many-relation.md
   - sql-null-go-zero-values.md
   - transactions.md
   - table-partitioning.md

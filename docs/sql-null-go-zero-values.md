@@ -49,5 +49,5 @@ db.Model(&item).Column("col1", "col2").Update()
 To update non-zero struct fields:
 
 ```go
-db.Model(&item).UpdateNotZero()
+db.Model(&item).WherePK().UpdateNotZero()
 ```

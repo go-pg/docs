@@ -8,15 +8,14 @@ template: main.html
 !!! note
     If you are already familiar with go-pg, please check [treemux + go-pg realworld example application](https://github.com/uptrace/go-treemux-realworld-example-app).
 
-go-pg supports 2 last Go versions and requires a Go version with
-[modules](https://github.com/golang/go/wiki/Modules) support. So make sure to initialize a Go
-module:
+go-pg supports 2 last Go versions and requires support for
+[Go modules](https://github.com/golang/go/wiki/Modules). So make sure to initialize a Go module:
 
 ```shell
 go mod init github.com/my/repo
 ```
 
-And then install go-pg (note _v10_ in the import; omitting it is a popular mistake):
+And then install pg/v10 (note _v10_ in the import; omitting it is a popular mistake):
 
 ```shell
 go get github.com/go-pg/pg/v10

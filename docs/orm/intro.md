@@ -31,13 +31,13 @@ type User struct {
 ```
 
 You can select a user with his profile without defining any relations. go-pg is smart enough to map
-the SQL column `profile__id` to the Go field `User.Profile.ID`.
+the SQL column `profile_id` to the Go field `User.Profile.ID`.
 
 ```go
 db.Model(&user).
     ColumnExpr("user.*").
-    ColumnExpr("profile.id AS profile__id").
-    ColumnExpr("profile.lang AS profile__lang").
+    ColumnExpr("profile.id AS profile_id").
+    ColumnExpr("profile.lang AS profile_lang").
     Join("LEFT JOIN profiles AS profile ON profile.user_id = user.id").
     Where("user.id = ?", 123).
     Select()

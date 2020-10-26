@@ -36,8 +36,8 @@ for _, q := range qs {
 //
 // SELECT
 //   "user".*,
-//   "profile"."id" AS "profile__id",
-//   "profile"."lang" AS "profile__lang"
+//   "profile"."id" AS "profile_id",
+//   "profile"."lang" AS "profile_lang"
 // FROM "users" AS "user"
 // LEFT JOIN "profiles" AS "profile" ON "profile"."id" = "user"."profile_id"
 

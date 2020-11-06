@@ -40,9 +40,9 @@ type Item struct {
 Starting from v10 use:
 
 ```go
-import "github.com/go-pg/pgext"
+import "github.com/go-pg/pg/extra/pgdebug"
 
-db.AddQueryHook(pgext.DebugHook{
+db.AddQueryHook(pgdebug.DebugHook{
     // Print all queries.
     Verbose: true,
 })

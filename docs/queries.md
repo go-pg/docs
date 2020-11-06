@@ -442,7 +442,12 @@ INSERT INTO "books" (title, text) VALUES ('my title', 'my text') RETURNING "id";
 Update all columns except primary keys:
 
 ```go
-err := db.Model(book).Update()
+book := &Book{
+    ID:    1,
+    Title: "my title",
+    Text:  "my text",
+}
+err := db.Model(book).WherePK().Update()
 ```
 
 ```sql
@@ -492,7 +497,7 @@ UPDATE books SET title = upper(title) WHERE id = 1 RETURNING title
 Update multiple books with single query:
 
 ```go
-err := db.Model(book1, book2).Update()
+err := db.Model(book1, book2).WherePK().Update()
 ```
 
 ```sql

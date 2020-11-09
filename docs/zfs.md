@@ -9,8 +9,8 @@ configuration you can achieve 3-4x compression ratio using LZ4. That means that 
 terabyte of data down to ~300 gigabytes. With ZSTD compression can be even better.
 
 The second reason is Adaptive Replacement Cache (ARC) cache. ARC is a page replacement algorithm
-with overall better characteristics than Linux page cache. Since it caches compressed blocks you can
-also fit more data into the same RAM.
+with overall better characteristics than Linux page cache. Since it caches compressed blocks, you
+can also fit more data into the same RAM.
 
 I recommend to start with the following configuration and tune it as you learn more:
 
@@ -22,7 +22,7 @@ I recommend to start with the following configuration and tune it as you learn m
 - `redundant_metadata=most` - may improve random writes.
 
 If you are going to use ZFS snapshots, create separate dataset for PostgreSQL WAL files. This way
-snapshots of your main dateset are smaller. Don't forget to backup WAL files separately so you can
+snapshots of your main dataset are smaller. Don't forget to backup WAL files separately so you can
 use
 [Point-in-Time Recovery](https://www.postgresql.org/docs/current/continuous-archiving.html){target=\_blank}.
 
@@ -46,30 +46,30 @@ _your queries_ before lowering `recordsize`.
 For Amazon Elastic Block Store and other cloud stores use the default value. But if you know the
 underlying hardware you should configure `ashift` properly.
 
-### Disable PostgreSQL full page writes
+### Disabling PostgreSQL full page writes
 
-Because ZFS always writes full blocks you can disable full page writes in PostgreSQL via
+Because ZFS always writes full blocks, you can disable full page writes in PostgreSQL via
 `full_page_writes = off` setting.
 
 ### ARC and shared_buffers
 
 Since ARC caches compressed blocks it makes sense to use it over PostgreSQL `shared_buffers` for
-caching hot data. But making `shared_buffers` too small will negatively affect write speed.
-Therefore consider lowering `shared_buffers` as long as your write speed does not suffer too much
-and leave the rest of the RAM for ARC.
+caching hot data. But making `shared_buffers` too small will negatively affect write speed. So
+consider lowering `shared_buffers` as long as your write speed does not suffer too much and leave
+the rest of the RAM for ARC.
 
 ### PostgreSQL block size and WAL size
 
 The default PostgreSQL block size is 8k and it does not match ZFS record size (by default 128k). The
-result is that while PostgreSQL writes data in 8k blocks ZFS have to operate with 128k records
-(known as write amplification). You can somewhat improve this situation by increasing PostgreSQL
-block size to 32k and WAL block size to 64k. This requires re-compiling PostgreSQL and
-re-initializing a database.
+result is that while PostgreSQL writes data in 8k blocks ZFS has to operate with 128k records (known
+as write amplification). You can somewhat improve this situation by increasing PostgreSQL block size
+to 32k and WAL block size to 64k. This requires re-compiling PostgreSQL and re-initializing a
+database.
 
 - Larger `blocksize` considerably improves performance of the queries that read a lot of data (tens
   of megabytes). This effect is not specific to ZFS and you can use larger block sizes with other
   filesystems as well.
-- Smaller `blocksize` means more TPS.
+- Smaller `blocksize` means higher transactions per second.
 
 ### Disabling TOAST compression
 
@@ -91,5 +91,5 @@ by @mercenary_sysadmin:
 > first place.
 
 > Logbias=throughput with no SLOG and small block writes will result in the most horrific
-> fragmentation imaginable, which will penalize you both in the initial writes AND when you re read
+> fragmentation imaginable, which will penalize you both in the initial writes AND when you reread
 > that data from metal later.

@@ -21,6 +21,8 @@ nav:
   - tracing.md
   - extra-modules.md
   - faq.md
+  - changelog.md
+  - rest-api.md
   - zfs.md
 
 extra_css:

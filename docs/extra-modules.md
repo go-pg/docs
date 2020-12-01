@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-    pgjson.SetProvider(pgext.SegmentJSONProvider{})
+    pgjson.SetProvider(&pgsegment.JSONProvider{})
 }
 ```
 

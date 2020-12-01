@@ -12,7 +12,7 @@ realistic example, please see
 following classic HTTP handler:
 
 ```go
-func myEndpoint(w http.ResponseWriter, req *http.Request) {
+func myHandler(w http.ResponseWriter, req *http.Request) {
     user, err := selectUser(req.Context())
     if err != nil {
         writeError(w, err)
@@ -32,7 +32,7 @@ func myEndpoint(w http.ResponseWriter, req *http.Request) {
 can be written as:
 
 ```go
-func myEndpoint(w http.ResponseWriter, req treemux.Request) error {
+func myHandler(w http.ResponseWriter, req treemux.Request) error {
     user, err := selectUser(req.Context(), req.Param("user_id"))
     if err != nil {
         return err
@@ -44,31 +44,43 @@ func myEndpoint(w http.ResponseWriter, req treemux.Request) error {
 }
 ```
 
-To customize error handling, use treemux's error handler:
+To customize error handling, use treemux's middleware:
 
 ```go
 import "github.com/vmihailenco/treemux"
 
-mux := treemux.New()
+mux := treemux.New(
+    treemux.WithMiddleware(errorHandler),
+)
 
-mux.ErrorHandler = func(w http.ResponseWriter, req Request, err error) {
-    if err == pg.ErrNoRows {
-        w.WriteHeader(http.StatusNotFound)
-    } else {
-        w.WriteHeader(http.StatusBadRequest)
+func errorHandler(next treemux.HandlerFunc) treemux.HandlerFunc {
+    return func(w http.ResponseWriter, req treemux.Request) error {
+        err := next(w, req)
+        if err == nil {
+            return nil
+        }
+
+
+        if err == pg.ErrNoRows {
+            w.WriteHeader(http.StatusNotFound)
+        } else {
+            w.WriteHeader(http.StatusBadRequest)
+        }
+
+        _ = treemux.JSON(w, treemux.H{
+            "message": err.Error(),
+        })
+
+        return err
     }
-
-    _ = treemux.JSON(w, treemux.H{
-        "message": err.Error(),
-    })
 }
 ```
 
 ## Code structure
 
-I recommend to keep HTTP handlers and DB models in the same package. But split your app into
-logically isolated Go packages. Each package should have `init.go` file which initializes the
-package.
+I recommend to keep HTTP handlers and DB models in the same package. But split the code into
+logically isolated Go packages. Each package should have `init.go` file with some initialization
+logic.
 
 ```
 cmd/
@@ -95,7 +107,7 @@ global/ # global package that initializes the app
 
 ## Router
 
-This tutorial defines 3 HTTP endpoints using treemux router:
+This tutorial defines 3 HTTP handlers using treemux router:
 
 ```go
 var Router = treemux.New()
@@ -103,9 +115,25 @@ var Router = treemux.New()
 func init() {
     g := Router.NewGroup("/api")
 
-    g.POST("/users", createUserEndpoint)
-    g.GET("/users/:user_id", showUserEndpoint)
-    g.GET("/users", filterUsersEndpoint)
+    g.POST("/users", createUserHandler)
+    g.GET("/users/:user_id", showUserHandler)
+    g.GET("/users", filterUsersHandler)
+}
+```
+
+## Parsing JSON
+
+- Don't forget to limit max request size.
+- To ease debugging typos in JSON, use `Decoder.DisallowUnknownFields`.
+
+```go
+req.Body = http.MaxBytesReader(w, req.Body, 100 << 10) // 100KiB
+
+dec := json.NewDecoder(req.Body)
+dec.DisallowUnknownFields()
+
+if err := dec.Decode(&value); err != nil {
+    return err
 }
 ```
 
@@ -125,7 +153,7 @@ type User struct {
 The handler:
 
 ```go
-func createUserEndpoint(w http.ResponseWriter, req treemux.Request) error {
+func createUserHandler(w http.ResponseWriter, req treemux.Request) error {
     // Define struct in-place to not clutter the package namespace.
     var in struct {
         User *User `json:"user"`
@@ -153,7 +181,7 @@ func createUserEndpoint(w http.ResponseWriter, req treemux.Request) error {
     })
 }
 
-// Not needed in simple cases.
+// Not needed in simple cases like this.
 func insertUser(ctx context.Context, user *User) error {
     _, err := global.PG().Model(user).Insert()
     return err
@@ -162,10 +190,8 @@ func insertUser(ctx context.Context, user *User) error {
 
 ## Displaying a user
 
-The handler:
-
 ```go
-func showUserEndpoint(w http.ResponseWriter, req treemux.Request) error {
+func showUserHandler(w http.ResponseWriter, req treemux.Request) error {
     // Parse route param as int64.
     userID, err := req.Params.Int64("user_id")
     if err != nil {
@@ -187,8 +213,11 @@ func showUserEndpoint(w http.ResponseWriter, req treemux.Request) error {
 
 ## Filtering users
 
-For complex filters I recommend creating a struct with filters state. The following example uses
-[urlstruct](github.com/go-pg/urlstruct) package to decode `url.Values` into a struct:
+For complex filters I recommend creating a helper struct and storing all filters there. This way you
+can check filters state at any stage of request processing.
+
+The following example uses [urlstruct](github.com/go-pg/urlstruct) package to decode `url.Values`
+into a struct:
 
 ```go
 import "github.com/go-pg/urlstruct"
@@ -220,13 +249,14 @@ func decodeUserFilter(req treemux.Request) (*UserFilter, error) {
 The handler:
 
 ```go
-func filterUsersEndpoint(w http.ResponseWriter, req treemux.Request) error {
+func filterUsersHandler(w http.ResponseWriter, req treemux.Request) error {
     f, err := decodeUserFilter(req)
     if err != nil {
         return err
     }
 
-    var users []*User
+    users := make([]*User, 0)
+
     q := global.PG().Model(&users).
         Limit(f.Pager.GetLimit()).
         Offset(f.Pager.GetOffset())

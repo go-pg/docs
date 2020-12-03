@@ -166,7 +166,7 @@ func createUserHandler(w http.ResponseWriter, req treemux.Request) error {
 
     user := in.User
     if user == nil {
-        // Return an error and let treemux's ErrorHandler do the rest.
+        // Return an error and let treemux's middleware do the rest.
         return errors.New(`JSON field "user" is required`)
     }
 

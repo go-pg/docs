@@ -16,14 +16,17 @@ nav:
       - orm/many-to-many-relation.md
   - sql-null-go-zero-values.md
   - transactions.md
-  - table-partitioning.md
   - hooks.md
   - tracing.md
   - extra-modules.md
   - faq.md
-  - changelog.md
-  - rest-api.md
-  - zfs.md
+  - Tutorials:
+      - table-partitioning.md
+      - rest-api.md
+      - migrations-zero-downtime.md
+      - zfs.md
+  - Changelog:
+      - changelog.md
 
 extra_css:
   - css/index.css
@@ -37,6 +40,8 @@ plugins:
 theme:
   name: material
   custom_dir: overrides
+  features:
+    - navigation.tabs
 
 markdown_extensions:
   - admonition

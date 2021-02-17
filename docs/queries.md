@@ -257,7 +257,7 @@ Subquery in FROM:
 ```go
 authorBooks := db.Model((*Book)(nil)).Where("author_id = ?", 1)
 
-err := db.Model(nil).TableExpr("(?) AS book", authorBooks).Select(&books)
+err := db.Model().TableExpr("(?) AS book", authorBooks).Select(&books)
 ```
 
 ```sql

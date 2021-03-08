@@ -4,27 +4,30 @@ repo_url: https://github.com/go-pg/pg
 edit_uri: https://github.com/go-pg/docs/edit/master/docs/
 
 nav:
-  - index.md
-  - models.md
-  - placeholders.md
-  - queries.md
-  - 'ORM':
-      - 'Introduction': orm/intro.md
-      - orm/has-one-relation.md
-      - orm/belongs-to-relation.md
-      - orm/has-many-relation.md
-      - orm/many-to-many-relation.md
-  - sql-null-go-zero-values.md
-  - transactions.md
-  - hooks.md
-  - tracing.md
-  - extra-modules.md
-  - faq.md
-  - Tutorials:
-      - table-partitioning.md
-      - rest-api.md
-      - migrations-zero-downtime.md
-      - zfs.md
+  - 'go-pg':
+      - index.md
+      - models.md
+      - placeholders.md
+      - queries.md
+      - sql-null-go-zero-values.md
+      - transactions.md
+      - hooks.md
+      - tracing.md
+      - extra-modules.md
+      - faq.md
+
+      - ORM:
+          - 'Introduction': orm/intro.md
+          - orm/has-one-relation.md
+          - orm/belongs-to-relation.md
+          - orm/has-many-relation.md
+          - orm/many-to-many-relation.md
+
+      - Tutorials:
+          - table-partitioning.md
+          - rest-api.md
+          - migrations-zero-downtime.md
+          - zfs.md
   - Changelog:
       - changelog.md
 
@@ -42,6 +45,8 @@ theme:
   custom_dir: overrides
   features:
     - navigation.tabs
+    - navigation.sections
+    - navigation.expand
 
 markdown_extensions:
   - admonition

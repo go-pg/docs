@@ -2,28 +2,19 @@
 
 <!-- Announcement bar -->
 {% block announce %}
-<style>
-  /* Preserve link color */
-  .md-announce a,
-  .md-announce a:focus,
-  .md-announce a:hover {
-    color: currentColor;
-  }
+  <a href="https://uptrace.dev/?utm_source=pg&utm_campaign=pg-sponsor">
+    <span class="twemoji tx-heart">{% include ".icons/octicons/heart-fill-24.svg" %}</span>
+    Support go-pg development and monitor your app with
+    <strong>distributed tracing</strong>
+  </a>
+{% endblock %}
 
-  /* Don't wrap name of blog article */
-  .md-announce strong {
-    white-space: nowrap;
-  }
+{% block content %}
+  {{ super() }}
 
-  /* Heart icon */
-  .md-announce .tx-heart {
-    margin-right: 0.2em;
-    color: #f44336;
-  }
-</style>
-<a href="https://uptrace.dev">
-  <span class="twemoji tx-heart">{% include ".icons/octicons/heart-fill-24.svg" %}</span>
-  Support go-pg development and monitor your app with
-  <strong>distributed tracing</strong>
-</a>
+  <footer style="margin-top: 2em">
+    <a href="https://uptrace.dev/?utm_source=redis&utm_campaign=redis-banner1">
+      <img src="https://raw.githubusercontent.com/uptrace/roadmap/master/banner1.png">
+    </a>
+  </footer>
 {% endblock %}

@@ -1,6 +1,24 @@
+/* Preserve link color */
+.md-announce a,
+.md-announce a:focus,
+.md-announce a:hover {
+  color: currentColor;
+}
+
+/* Don't wrap name of blog article */
+.md-announce strong {
+  white-space: nowrap;
+}
+
+/* Heart icon */
+.md-announce .tx-heart {
+  margin-right: 0.2em;
+  color: #f44336;
+}
+
 .uptrace-ad {
-  margin-top: 5em;
+  margin-top: 3em;
   padding-left: 10px;
   line-height: 1.5em;
-  border-left: 4px #03A9F4 solid;
+  border-left: 4px #03a9f4 solid;
 }

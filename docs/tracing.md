@@ -23,6 +23,6 @@ db.AddQueryHook(pgotel.TracingHook{})
 queries since they can contain sensitive information.
 
 This is how span looks at Uptrace.dev which is an OpenTelemetry backend that supports
-[distributed traces, logs, and errors](https://uptrace.dev/1/groups?system=db%3Apostgresql).
+[distributed traces, logs, and errors](https://uptrace.dev/explore/1/groups/?system=db%3Apostgresql&utm_source=pg&utm_campaign=pg-tracing).
 
 ![PostgreSQL trace and spans](img/sql-span.png)

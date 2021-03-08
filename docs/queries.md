@@ -418,6 +418,29 @@ _, err := db.Model(&values).TableExpr("books").Insert()
 INSERT INTO books (title, text) VALUES ('title1', 'text2')
 ```
 
+### Insert from Select
+
+```go
+selq := db.Model((*Book)(nil)).
+    Where("1 = 1")
+
+_, err := db.Model((*Book)(nil)).
+    With("sel", selq).
+    TableExpr("sel").
+    Insert()
+```
+
+```sql
+WITH "sel" AS (
+  SELECT "book"."id"
+  FROM "books" AS "book"
+  WHERE (1 = 1)
+)
+INSERT INTO "books"
+SELECT * FROM sel
+
+```
+
 ### Select or insert
 
 Select existing book by name or create new book:

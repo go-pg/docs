@@ -17,7 +17,7 @@ following optional struct field tags:
 | tableName struct{} \`pg:"table_name"\`               | Override default table name.                                       |
 | tableName struct{} \`pg:"alias:table_alias"\`        | Override default table alias name.                                 |
 | tableName struct{} \`pg:"select:view_name"\`         | Override table name for SELECT queries.                            |
-| tableName struct{} \`pg:",discard_unknown_columns"\` | Silently discard uknown columns instead of returning an error.     |
+| tableName struct{} \`pg:",discard_unknown_columns"\` | Silently discard unknown columns instead of returning an error.    |
 | pg:"-"                                               | Ignore the field.                                                  |
 | pg:"column_name"                                     | Override default column name.                                      |
 | pg:"alias:alt_name"                                  | Alternative column name.                                           |

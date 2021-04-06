@@ -4,7 +4,56 @@ template: main.html
 
 # Writing queries
 
+## Design
+
+Our goal is to help you write SQL, not to hide or replace it with custom dialect. go-pg query
+builder helps with:
+
+- splitting long queries into logically separated blocks;
+- replacing `?` placeholders with properly escaped values;
+- generating list of columns and some joins from Go models.
+
+For example, the following Go code:
+
+```go
+err := db.Model(book).
+    ColumnExpr("lower(name)").
+    Where("? = ?", pg.Ident("id"), "some-id").
+    Select()
+```
+
+generates the following query:
+
+```sql
+SELECT lower(name)
+FROM "books"
+WHERE "id" = 'some-id'
+```
+
 ## Select
+
+| SQL                                 | go-pg                                                 |
+| ----------------------------------- | ----------------------------------------------------- |
+| SELECT col1, col2                   | Column("col1", "col2")                                |
+| SELECT col1, col2                   | ColumnExpr("col1, col2")                              |
+| SELECT count()                      | ColumnExpr("count()")                                 |
+| SELECT count("id")                  | ColumnExpr("count(?)", pg.Ident("id"))                |
+| FROM "table1", "table2"             | Table("table1", "table2")                             |
+| FROM table1, table2                 | TableExpr("table1, table2")                           |
+| JOIN table1 ON col1 = 'value1'      | Join("JOIN table1 ON col1 = ?", "value1")             |
+| JOIN table1 ON col1 = 'value1'      | Join("JOIN table1").JoinOn("col1 = ?", "value1")      |
+| LEFT JOIN table1 ON col1 = 'value1' | Join("LEFT JOIN table1 ON col1 = ?", "value1")        |
+| WHERE id = 1                        | Where("id = ?", 1)                                    |
+| WHERE "foo" = 'bar'                 | Where("? = ?", pg.Ident("foo"), "bar")                |
+| WHERE id = 1 OR foo = 'bar'         | Where("id = ?", 1).WhereOr("foo = ?", "bar")          |
+| GROUP BY "col1", "col2"             | Group("col1", "col2")                                 |
+| GROUP BY col1, col2                 | GroupExpr("col1, col2")                               |
+| GROUP BY "col1", "col2"             | GroupExpr("?, ?", pg.Ident("col1"), pg.Ident("col2")) |
+| ORDER BY "col1" ASC                 | Order("col1 ASC")                                     |
+| ORDER BY col1 ASC                   | OrderExpr("col1 ASC")                                 |
+| ORDER BY "col1" ASC                 | OrderExpr("? ASC", pg.Ident("col1"))                  |
+| LIMIT 10                            | Limit(10)                                             |
+| OFFSET 1000                         | Offset(1000)                                          |
 
 Select book by primary key:
 
@@ -85,7 +134,7 @@ Select book user `WHERE ... AND (... OR ...)`:
 ```go
 err := db.Model(book).
     Where("title LIKE ?", "my%").
-    WhereGroup(func(q *orm.Query) (*orm.Query, error) {
+    WhereGroup(func(q *pg.Query) (*pg.Query, error) {
         q = q.WhereOr("id = 1").
             WhereOr("id = 2")
         return q, nil

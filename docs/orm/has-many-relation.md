@@ -43,7 +43,7 @@ for _, q := range qs {
 var user User
 err := db.Model(&user).
     Column("user.*").
-    Relation("Profiles", func(q *orm.Query) (*orm.Query, error) {
+    Relation("Profiles", func(q *pg.Query) (*pg.Query, error) {
         return q.Where("active IS TRUE"), nil
     }).
     First()

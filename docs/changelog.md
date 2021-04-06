@@ -1,5 +1,10 @@
 # Changelog
 
+## v10.9
+
+- Exported `pg.Query` which should be used instead of `orm.Query`.
+- Added `pg.DBI` which is a DB interface implemented by `pg.DB` and `pg.Tx`.
+
 ## v10
 
 ### Resources

@@ -10,16 +10,16 @@ use the following code:
 
 ```go
 import (
-    "github.com/go-pg/pg/v10"
-    "github.com/go-pg/pg/extra/pgotel"
+	"github.com/go-pg/pg/v10"
+	"github.com/go-pg/pg/extra/pgotel/v10"
 )
 
 db := pg.Connect(&pg.Options{...})
 
-db.AddQueryHook(pgotel.TracingHook{})
+db.AddQueryHook(pgotel.NewTracingHook())
 ```
 
-`TracingHook` sends SELECT, UPDATE, and DELETE queries as is. But it strips data values from INSERT
+The hook sends SELECT, UPDATE, and DELETE queries as is. But it strips data values from INSERT
 queries since they can contain sensitive information.
 
 This is how span looks at Uptrace.dev which is an OpenTelemetry backend that supports

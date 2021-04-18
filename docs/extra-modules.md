@@ -9,24 +9,22 @@ See [tracing](/tracing/).
 ```go
 import (
     "github.com/go-pg/pg/v10/pgjson"
-    "github.com/go-pg/pg/extra/pgsegment"
+    "github.com/go-pg/pg/extra/pgsegment/v10"
 )
 
 func init() {
-    pgjson.SetProvider(&pgsegment.JSONProvider{})
+    pgjson.SetProvider(pgsegment.NewJSONProvider())
 }
 ```
 
 ## Print failed queries using DebugHook
 
 ```go
-import "github.com/go-pg/pg/extra/pgdebug"
+import "github.com/go-pg/pg/extra/pgdebug/v10"
 
 db := pg.Connect(&pg.Options{...})
 
 if debug {
-    db.AddQueryHook(pgdebug.DebugHook{
-        //Verbose: true,
-    })
+    db.AddQueryHook(pgdebug.NewDebugHook())
 }
 ```

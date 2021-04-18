@@ -29,8 +29,6 @@ nav:
           - uuid.md
           - rest-api.md
           - zfs.md
-  - Changelog:
-      - changelog.md
 
 extra_css:
   - css/index.css

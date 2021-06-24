@@ -216,7 +216,7 @@ func showUserHandler(w http.ResponseWriter, req treemux.Request) error {
 For complex filters I recommend creating a helper struct and storing all filters there. This way you
 can check filters state at any stage of request processing.
 
-The following example uses [urlstruct](github.com/go-pg/urlstruct) package to decode `url.Values`
+The following example uses [urlstruct](https://github.com/go-pg/urlstruct) package to decode `url.Values`
 into a struct:
 
 ```go
